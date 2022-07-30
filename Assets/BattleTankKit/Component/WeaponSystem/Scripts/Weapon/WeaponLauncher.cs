@@ -64,7 +64,7 @@ namespace HWRWeaponSystem
         public float ReloadingProcess;
         public GameObject CrosshairObject;
         GameObject crosshair;
-        Texture2D Icon;
+        public Texture2D Icon;
 
         void Start()
         {

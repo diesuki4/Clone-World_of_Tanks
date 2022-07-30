@@ -154,15 +154,17 @@ namespace HWRWeaponSystem
         // 비폭발 데미지
         void NormalDamage(Collision collision)
         {
-            // 데미지와 쏜 탱크가 나라는 것을 저장한다.
-            DamagePack damagePack = new DamagePack();
-            damagePack.Damage = Damage;
-            damagePack.Owner = Owner;
-
             // IgnoreTag, 피아 식별울 검사한다.
             if (DoDamageCheck(collision.gameObject))
+            {
+                // 데미지와 쏜 탱크가 나라는 것을 저장한다.
+                DamagePack damagePack = new DamagePack();
+                damagePack.Damage = Damage;
+                damagePack.Owner = Owner;
+
                 // 데미지를 적용한다.
                 collision.gameObject.SendMessage("ApplyDamage", damagePack, SendMessageOptions.DontRequireReceiver);
+            }
         }
 
         void OnCollisionEnter(Collision collision)

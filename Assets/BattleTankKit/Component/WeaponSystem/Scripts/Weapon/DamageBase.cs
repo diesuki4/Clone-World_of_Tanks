@@ -21,7 +21,7 @@ namespace HWRWeaponSystem
 		public bool DoDamageCheck(GameObject gob)
 		{
 			// 아군이면 불가
-			if (gob.tag == Owner.tag)
+			if (gob.transform.root.tag == Owner.tag)
 				return false;
 
 			// IgnoreTag 에 등록되어 있으면 불가
