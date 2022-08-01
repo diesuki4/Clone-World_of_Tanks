@@ -10,7 +10,7 @@ namespace HWRWeaponSystem
 {
 	public class FinderPool : MonoBehaviour
 	{
-		// 태그 : 오브젝트 목록을 딕셔너리로 관리한다.
+		// <태그 : 오브젝트 목록>을 딕셔너리로 관리한다.
 		public Dictionary<string, TargetCollector> TargetList = new Dictionary<string, TargetCollector>();
 		public int TargetTypeCount = 0;
 

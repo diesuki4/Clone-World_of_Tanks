@@ -154,7 +154,7 @@ namespace HWRWeaponSystem
         // 비폭발 데미지
         void NormalDamage(Collision collision)
         {
-            // IgnoreTag, 피아 식별울 검사한다.
+            // IgnoreTag, 피아 식별을 검사한다.
             if (DoDamageCheck(collision.gameObject))
             {
                 // 데미지와 쏜 탱크가 나라는 것을 저장한다.

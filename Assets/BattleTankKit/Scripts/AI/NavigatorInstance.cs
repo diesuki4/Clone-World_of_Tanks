@@ -1,32 +1,41 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 
-public class NavigatorInstance : MonoBehaviour {
-
+public class NavigatorInstance : MonoBehaviour
+{
+	[Header("탱크 자신")]
 	public GameObject Owner;
-	public UnityEngine.AI.NavMeshAgent Navigator;
+	public NavMeshAgent Navigator;
 
-	void Start () {
-		Navigator = this.GetComponent<UnityEngine.AI.NavMeshAgent>();
+	void Start()
+	{
+		Navigator = GetComponent<NavMeshAgent>();
 	}
 
-	public void SetDestination(Vector3 target){
-		if(Navigator){
+	// NavMeshAgent 목적지 지정
+	public void SetDestination(Vector3 target)
+	{
+		if (Navigator)
 			Navigator.SetDestination(target);
-		}
 	}
 
-	public Vector3 GetDirection(){
-		if(Navigator){
+	// 사용되지 않음
+	public Vector3 GetDirection()
+	{
+		if (Navigator)
 			return (Navigator.velocity - Owner.transform.position).normalized;
-		}
-		return Vector3.zero;
+		else	
+			return Vector3.zero;
 	}
 
-
-	void Update () {
-		if(Owner == null){
-			GameObject.Destroy(this.gameObject);
+	void Update ()
+	{
+		// 탱크가 죽었으면
+		if (!Owner)
+		{
+			// 소멸
+			Destroy(gameObject);
 		}
 	}
 }
