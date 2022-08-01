@@ -5,144 +5,171 @@ namespace HWRWeaponSystem
 {
 	public class ObjectPool : MonoBehaviour
 	{
+		[Header("비활성화까지 대기 시간")]
+		public float LifeTime;
+		// 활성화 여부
 		[HideInInspector]
 		public bool Active;
+		// 프리팹 종류
 		[HideInInspector]
 		public GameObject Prefab;
-		public float LifeTime;
-		private Vector3 positionTemp;
-		private Quaternion rotationTemp;
-		private Vector3 scaleTemp;
-		private Rigidbody rigidBody;
-		private LineRenderer lineRenderer;
-		private TrailRenderer trailRenderer;
-		private float trailTemp;
+
+		// 초기 위치
+		Vector3 positionTemp;
+		// 초기 회전값
+		Quaternion rotationTemp;
+		// 초기 Scale
+		Vector3 scaleTemp;
+		Rigidbody rigidBody;
+		LineRenderer lineRenderer;
+		TrailRenderer trailRenderer;
+		float trailTemp;
 	
-		void Awake ()
+		void Awake()
 		{
-			scaleTemp = this.transform.localScale;
-			positionTemp = this.transform.position;
-			rotationTemp = this.transform.rotation;
-			rigidBody = this.GetComponent<Rigidbody> ();
-			lineRenderer = this.GetComponent<LineRenderer> ();
-			trailRenderer = this.GetComponent<TrailRenderer> ();
+			// 초깃값 백업
+			scaleTemp = transform.localScale;
+			positionTemp = transform.position;
+			rotationTemp = transform.rotation;
+			rigidBody = GetComponent<Rigidbody>();
+			lineRenderer = GetComponent<LineRenderer>();
+			trailRenderer = GetComponent<TrailRenderer>();
+
 			if (trailRenderer)
 				trailTemp = trailRenderer.time;
 		}
 
-		void Start ()
-		{
-		
-		}
+		void Start() { }
 	
-		void OnEnable ()
+		// 활성화 되면
+		void OnEnable()
 		{
-			if (LifeTime > 0) {
-				StartCoroutine (setDestrying (LifeTime));
-			}
+			// LifeTime 뒤에 소멸
+			if (LifeTime > 0) 
+				StartCoroutine(setDestroying(LifeTime));
 		}
 
-		public virtual void OnSpawn (Vector3 position, Vector3 scale, Quaternion rotation, GameObject prefab, float lifeTime)
+		// 오브젝트 초기화 루틴
+		public virtual void OnSpawn(Vector3 position, Vector3 scale, Quaternion rotation, GameObject prefab, float lifeTime)
 		{
+			// 수명을 설정한다.
 			if (lifeTime != -1)
 				LifeTime = lifeTime;
 		
+			// 보이게 설정한다.
 			if (GetComponent<Renderer>())
 				GetComponent<Renderer>().enabled = true;
 
+			// 초깃값 설정
 			Prefab = prefab;
-			this.transform.position = position;
-			this.transform.rotation = rotation;
-			this.transform.localScale = scale;
-			scaleTemp = this.transform.localScale;
-			positionTemp = this.transform.position;
-			rotationTemp = this.transform.rotation;
+			transform.position = position;
+			transform.rotation = rotation;
+			transform.localScale = scale;
+			scaleTemp = transform.localScale;
+			positionTemp = transform.position;
+			rotationTemp = transform.rotation;
 		
-			if (rigidBody) {
+			if (rigidBody)
+			{
 				rigidBody.velocity = Vector3.zero;
 				rigidBody.angularVelocity = Vector3.zero;
 			}
-			if (lineRenderer) {
-				lineRenderer.SetPosition (0, this.transform.position);
-				lineRenderer.SetPosition (1, this.transform.position);
+
+			if (lineRenderer)
+			{
+				lineRenderer.SetPosition(0, transform.position);
+				lineRenderer.SetPosition(1, transform.position);
 			}
-			if (GetComponent<ParticleSystem>()) {
-				GetComponent<ParticleSystem>().Play ();
-			}
-			if (trailRenderer) {
+
+			if (GetComponent<ParticleSystem>())
+				GetComponent<ParticleSystem>().Play();
+				
+			if (trailRenderer)
 				trailRenderer.time = trailTemp;	
-			}
-		
+				
+			// 활성화 상태로 전환
 			Active = true;
 		
-			this.gameObject.SetActive (true);
+			// 겡미 오브젝트 활성화
+			gameObject.SetActive(true);
 		
-			if (LifeTime > 0) {
-				StartCoroutine (setDestrying (LifeTime));
-			}
-			StartCoroutine (resetTrail ());
+			// LifeTime 뒤에 소멸하도록 지정
+			if (LifeTime > 0)
+				StartCoroutine(setDestroying(LifeTime));
+				
+			StartCoroutine(resetTrail());
 		}
 	
-		private IEnumerator resetTrail ()
+		IEnumerator resetTrail()
 		{
-			if (trailRenderer) {
-				trailRenderer.time = -trailRenderer.time;	
-				yield return new WaitForSeconds(0.01f);        
-				trailRenderer.time = trailTemp; 
+			if (trailRenderer)
+			{
+				trailRenderer.time = -trailRenderer.time;
+				yield return new WaitForSeconds(0.01f);
+				trailRenderer.time = trailTemp;
 			}
 		}
 
-		public IEnumerator setDestrying (float time)
-		{
-			yield return new WaitForSeconds(time);
-			OnDestroyed ();
-		}
-
-		public void SetDestroy (float time)
-		{
-			StartCoroutine (setDestrying (time));
-		}
-		
-		public void Destroying (float time)
+		// time 뒤에 소멸
+		public void Destroying(float time)
 		{
 			SetDestroy(time);
 		}
 
-		public void Destroying ()
+		public void SetDestroy(float time)
 		{
-		
+			StartCoroutine(setDestroying(time));
+		}
+
+		public IEnumerator setDestroying(float time)
+		{
+			yield return new WaitForSeconds(time);
+			OnDestroyed();
+		}
+
+		public virtual void OnDestroyed()
+		{
+			Destroying();
+		}
+
+		// 소멸 시 동작
+		public void Destroying()
+		{
+			// 보이지 않게 처리한다.
 			if (GetComponent<Renderer>())
 				GetComponent<Renderer>().enabled = false;
 		
-			this.transform.localScale = scaleTemp;
-			this.transform.position = positionTemp;
-			this.transform.rotation = rotationTemp;
-			if (rigidBody) {
+			// 초기 위치로 복구
+			transform.localScale = scaleTemp;
+			transform.position = positionTemp;
+			transform.rotation = rotationTemp;
+
+			if (rigidBody)
+			{
 				rigidBody.velocity = Vector3.zero;
 				rigidBody.angularVelocity = Vector3.zero;
 			}
-			if (lineRenderer) {
-				lineRenderer.SetPosition (0, this.transform.position);
-				lineRenderer.SetPosition (1, this.transform.position);
+			
+			if (lineRenderer)
+			{
+				lineRenderer.SetPosition(0, transform.position);
+				lineRenderer.SetPosition(1, transform.position);
 			}
 
-			if (GetComponent<ParticleSystem>()) {
-				GetComponent<ParticleSystem>().Stop ();
-			}
-			if (trailRenderer) {
+			if (GetComponent<ParticleSystem>())
+				GetComponent<ParticleSystem>().Stop();
+			
+			if (trailRenderer)
+			{
 				trailRenderer.time = 0;	
 #if UNITY_5
 				trailRenderer.Clear();
 #endif
 			}
 		
-			this.gameObject.SetActive (false);
+			// 삭제하지 않고 풀에 비활성화 상태로 남겨둔다.
+			gameObject.SetActive(false);
 			Active = false;
-		}
-
-		public virtual void OnDestroyed ()
-		{
-			Destroying ();
 		}
 	}
 }
