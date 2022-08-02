@@ -2,7 +2,7 @@
 using UnityEngine.AI;
 using System.Collections;
 
-// 네이게이터를 이동시키고
+// 네비게이터를 이동시키고 탱크가 따라가는 방식으로 작동
 public class NavigatorInstance : MonoBehaviour
 {
 	[Header("탱크 자신")]

@@ -20,6 +20,7 @@ public class TankAI : MonoBehaviour
 	public float FiringDelay = 10;
 	public float FireDistance = 20;
 	public int FiringSpread = 500;
+	[Header("무기를 교체할 수 있는 확률")]
 	public float SwitchWeaponChance = 49;
 	public NavigatorInstance Navigator;
 	public string[] TargetTag = {"Enemy"};
@@ -64,7 +65,7 @@ public class TankAI : MonoBehaviour
 
 			switch (aiMoveState)
 			{
-			// AI의 랜덤 움직임을 초기화 하는 상태
+			// AI의 랜덤 움직임을 초기화하는 상태
 			case 0:
 				// 현재 위치 기준 반경 PatrolDistance 이내의 지점을 랜덤하게 지정한다.
 				positionAround = DetectGround(transform.position + new Vector3(Random.Range(-PatrolDistance, PatrolDistance), 1000, Random.Range(-PatrolDistance, PatrolDistance)));
@@ -90,38 +91,47 @@ public class TankAI : MonoBehaviour
 					}
 				}
 
-				// aim turret to position offset
+				// 탱크 상부와 포신이 positionAround 방향으로 서서히 회전한다.
 				tank.Aim(positionAround);
 				break;
 			}
 
-			// count down for new state
+			// 한 번의 텀이 끝났으면 다음 위치를 찾는다.
 			if (aiTime <= 0)
 				aiMoveState = 0;
 			else
 				aiTime -= Time.deltaTime;
 		}
+		// 현재 등록된 타겟이 있으면
 		else
 		{
-			// calculate distance from target
+			// 현재 타겟과의 거리
 			float targetDistance = Vector3.Distance(transform.position, currentTarget.transform.position);
+			// 타겟 방향
 			Vector3 targetDirection = (currentTarget.transform.position - transform.position).normalized;
 
 			RaycastHit hit;
 			bool canFire = false; 
-			// Raycasting object in front. to make sure the sight is clean before firing.
+			// 타겟 위에서 내 방향으로 Ray 를 쏴서
 			if (Physics.Raycast(currentTarget.transform.position + Vector3.up - (targetDirection * 2), -targetDirection, out hit))
+				// 내가 맞았고
 				if (hit.collider.gameObject == gameObject)
+					// 발사 가능 거리 안에 있으면
 					if (targetDistance <= FireDistance)
+						// 발사 가능 상태로 전환
 						canFire = true;
 
 			switch (aiMoveState)
 			{
+			// AI의 랜덤 움직임과 포신의 목적지를 초기화하는 상태
 			case 0:
-				// Create position offset for AI this randomly making AI looks more natural
+				// tank.Aim() 에서 포신이 타겟으로 서서히 회전할 때 목적지에 노이즈를 추가한다.
 				aimAround = (new Vector3(Random.Range(-FiringSpread, FiringSpread), Random.Range(0, FiringSpread) + targetDistance, Random.Range(-FiringSpread, FiringSpread))) * 0.001f;
+				// 현재 타겟의 위치 기준 반경 FireDistance 이내의 지점을 랜덤하게 지정한다.
 				positionAround = currentTarget.transform.position + new Vector3(Random.Range(-FireDistance, FireDistance), 0, Random.Range(-FireDistance, FireDistance));
+				// 초기화 상태 종료
 				aiMoveState = 1;
+				// 현재 타겟을 유지할 시간
 				aiTime = Random.Range(0, PatrolDurationMax);
 				break;
 			case 1:
@@ -129,46 +139,56 @@ public class TankAI : MonoBehaviour
 				break;
 			}
 
-			//just Move the tank along with navigator object
+			// "발사 가능 상태가 아니거나" "발사 가능 상태인데 목적지까지의 거리가 발사 가능 거리 / 2 보다 클 때"
 			if (navigator != null && (!canFire || (canFire && distanceToPoint > FireDistance / 2)))
 			{
+				// 네비게이터를 목적지로 계속 이동시킨다.
 				navigator.SetDestination(positionAround);
+				// 탱크는 네비게이터를 따라간다.
 				tank.MoveTo(navigator);
 
+				// 네비게이터의 위치가 탱크에서 1m 이상 떨어졌으면 위치를 동일하게 지정
 				if (Vector3.Distance(navigator.transform.position, transform.position) > 1)
 					navigator.transform.position = transform.position;
 			}
 
-			// aim to the target plus with position offset
+			// 타겟의 위치에 노이즈를 더한 위치로 탱크 상부와 포신을 서서히 회전시킨다.
 			tank.Aim(currentTarget.transform.position + aimAround);
 
-			// sight is clean and gun is straight to the target
+			// 발사 가능 상태이고 포신과 타겟의 가로, 세로 각도 차의 합이 5 미만일 때
 			if (canFire && tank.AimingAngle < 5)
 			{
+				// 무기 교체 딜레이가 지났으면
 				if (aiFireDelay <= 0)
 				{
+					// 새로운 발사 시간과 딜레이를 적용
 					aiFireTime = Random.Range(0, FiringDurationMax);
 					aiFireDelay = Random.Range(0, FiringDelay);
 
 					if (tank.weapon)
+						// SwitchWeaponChance 확률에 따라 무기 교체
 						if (Random.Range(0, 100) > Mathf.Clamp(100 - SwitchWeaponChance, 0, 100))
 							tank.weapon.SwitchWeapon();
 				}
+				// 무기 교체 딜레이가 안 지났을 때
 				else
 				{
-					aiFireDelay -= 1 * Time.deltaTime;
+					aiFireDelay -= Time.deltaTime;
 				}
 				
+				// 발사 시간이 남았으면
 				if (aiFireTime > 0)
 				{
+					// 무기 발사 (내부적으로 텀이 존재해서 매 프레임 발사되지는 않는다.)
 					tank.FireWeapon();
 					aiFireTime -= Time.deltaTime;
 				}
 			}
 
-			// count down to the new state
+			// 한 번의 텀이 끝났으면 새로운 타겟을 찾는다.
 			if (aiTime <= 0)
 			{
+				// 
 				aiMoveState = 0;
 				FindNewTarget();
 			}

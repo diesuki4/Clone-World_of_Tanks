@@ -34,6 +34,7 @@ public class Tank : DamageManager
 
 	[HideInInspector]
 	public WeaponController weapon;
+	// 포신과 타겟의 가로, 세로 각도 차의 합
 	[HideInInspector]
 	public float AimingAngle;
 
