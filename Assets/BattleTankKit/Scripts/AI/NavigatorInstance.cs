@@ -2,6 +2,7 @@
 using UnityEngine.AI;
 using System.Collections;
 
+// 네이게이터를 이동시키고
 public class NavigatorInstance : MonoBehaviour
 {
 	[Header("탱크 자신")]
@@ -33,9 +34,7 @@ public class NavigatorInstance : MonoBehaviour
 	{
 		// 탱크가 죽었으면
 		if (!Owner)
-		{
 			// 소멸
 			Destroy(gameObject);
-		}
 	}
 }
