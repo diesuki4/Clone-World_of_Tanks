@@ -163,7 +163,7 @@ public class Tank : DamageManager
 		if (Turret != null)
 		{
 			// target 의 위치를 탱크 기준 로컬 위치로 변환
-			Vector3 localTarget = Turret.transform.parent.InverseTransformPoint(target);
+			Vector3 localTarget = Turret.transform.root.InverseTransformPoint(target);
 			// localTarget 을 보고 있을 때의 각도
 			Quaternion targetlook = Quaternion.LookRotation(localTarget - Turret.transform.localPosition);
 			// targetlook 에 현재 각도에서 target 의 Y축 각도를 적용한 것을 대입한다.
@@ -179,7 +179,7 @@ public class Tank : DamageManager
 		if (MainGun != null && aimAngleTurret < 3)
 		{
 			// target 의 위치를 탱크 상부 기준 로컬 위치로 변환
-			Vector3 localTarget = MainGun.transform.parent.InverseTransformPoint(target);
+			Vector3 localTarget = Turret.transform.InverseTransformPoint(target);
 			// 포신과 타겟과의 거리
 			float distance = Vector2.Distance(new Vector2(localTarget.x, localTarget.z), new Vector2(MainGun.transform.localPosition.x, MainGun.transform.localPosition.z));
 			// 포신과 타겟의 수직(세로) 각도 차이
