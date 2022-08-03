@@ -6,6 +6,7 @@ public class TankTrackAnimation : MonoBehaviour
 {
 	Renderer render;
 	public Vector2 UVDirection = new Vector2(1, 0);
+	public float speed = 1;
 
 	void Start()
 	{
@@ -25,6 +26,6 @@ public class TankTrackAnimation : MonoBehaviour
 		if(UVDirection.y != 0)
 			moveVector.y = vector.x * UVDirection.y;
 			
-		render.material.mainTextureOffset += moveVector * Time.deltaTime;
+		render.material.mainTextureOffset += moveVector * speed * Time.deltaTime;
 	}
 }
