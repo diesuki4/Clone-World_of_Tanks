@@ -20,8 +20,8 @@ namespace HWRWeaponSystem
 		// 데미지 처리가 가능한지 검사 (false : 불가, true : 가능)
 		public bool DoDamageCheck(GameObject gob)
 		{
-			// 아군이면 불가
-			if (gob.transform.root.tag == Owner.tag)
+			// 이미 죽었거나 아군이면 불가
+			if (!gob || gob.transform.root.tag == Owner.tag)
 				return false;
 
 			// IgnoreTag 에 등록되어 있으면 불가
