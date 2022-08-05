@@ -12,6 +12,8 @@ using UnityEngine;
 
 // WASD 이동 키를 입력 시 순항모드는 바로 해제
 
+// 기본 이동 / 전후진 순항 모드 / 급정지 FSM 설계
+
 public class LSJ_PlayerMove : MonoBehaviour
 {
     public float moveSpeed = 30f; // 이동 속도
