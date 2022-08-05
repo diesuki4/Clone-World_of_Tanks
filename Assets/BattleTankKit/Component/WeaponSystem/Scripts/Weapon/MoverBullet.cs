@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// 미사일의 이동
 namespace HWRWeaponSystem
 {
     public class MoverBullet : WeaponBase

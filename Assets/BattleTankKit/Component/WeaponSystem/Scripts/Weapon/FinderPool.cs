@@ -97,7 +97,7 @@ namespace HWRWeaponSystem
 			SetTarget(tag);
 		}
 
-		// 해당 태그를 갖는 코든 오브젝트를 배열에 저장한다.
+		// 해당 태그를 갖는 모든 오브젝트를 배열에 저장한다.
 		public void SetTarget(string tag)
 		{
 			Targets = GameObject.FindGameObjectsWithTag(tag);
