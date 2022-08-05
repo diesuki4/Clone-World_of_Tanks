@@ -6,7 +6,7 @@ using UnityEngine;
 // 모든 AI가 상대를 찾기 위해 FindGameObjectsWithTag() 를 호출하면
 // 부하가 너무 크기 때문에 최적화를 위해 작성된 풀이다.
 public class CKB_TagObjectFinder : MonoBehaviour
-{
+{/*
     public static CKB_TagObjectFinder Instance;
 
     void Awake()
@@ -87,5 +87,5 @@ public class CKB_TagObjectFinder : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
 }

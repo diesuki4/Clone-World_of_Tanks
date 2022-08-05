@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CKB_Cannon : MonoBehaviour
-{		
+{		/*
     [HideInInspector]
     public GameObject Owner;
 
@@ -176,5 +176,5 @@ public class CKB_Cannon : MonoBehaviour
         // 나머지는 가능
         else
             return true;
-    }
+    }*/
 }
