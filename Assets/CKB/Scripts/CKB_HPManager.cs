@@ -45,12 +45,9 @@ public class CKB_HPManager : MonoBehaviour
     // 죽음 처리
     public void Dead()
     {
-        // 등록된 모델이 있으면
-        if (Effect)
-            // 죽은 상태인 모델을 생성한다.
-            Instantiate(Effect, transform.position, transform.rotation);
+        // 등록된 모델을 생성한다.
+        Instantiate(Effect, transform.position, transform.rotation);
 
-        // 게임 오브젝트 삭제
         Destroy(gameObject);
     }
 }
