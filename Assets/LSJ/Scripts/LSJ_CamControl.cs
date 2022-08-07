@@ -20,6 +20,7 @@ public class LSJ_CamControl : MonoBehaviour
     public float distance;
     public Vector2 Xminmax;
     public Transform target;
+    public GameObject zoomcam;
 
     [Header("카메라 회전")]
     [SerializeField]
@@ -57,8 +58,17 @@ public class LSJ_CamControl : MonoBehaviour
     {
         CameraControl();
 
-        if (Input.GetButton("Fire2"))
-            CamRotate();
+        /*if (Input.GetButton("Fire2"))
+            CamRotate();*/
+        if (Input.GetButtonDown("Fire2"))
+        {
+            ZoomMode();
+        }
+
+        if(Input.GetButtonUp("Fire2"))
+        {
+            ZoomOut();
+        }
     }
 
     void CameraControl()
@@ -88,5 +98,15 @@ public class LSJ_CamControl : MonoBehaviour
         transform.localEulerAngles = currentRotation;
 
         transform.position = basicTarget.position - transform.forward * distanceFromTarget;
+    }
+
+    void ZoomMode()
+    {
+        zoomcam.SetActive(true);
+    }
+
+    void ZoomOut()
+    {
+        zoomcam.SetActive(false);
     }
 }
