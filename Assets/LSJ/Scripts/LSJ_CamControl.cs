@@ -13,7 +13,16 @@ using UnityEngine;
 // 마우스 휠로 기본거리 - 중거리 - 원거리 이동
 public class LSJ_CamControl : MonoBehaviour
 {
-    [SerializeField] 
+
+    [Header("카메라 컨트롤")]
+    float x, y;
+    public float sensitivity;
+    public float distance;
+    public Vector2 Xminmax;
+    public Transform target;
+
+    [Header("카메라 회전")]
+    [SerializeField]
     private float mouseSensitivity = 3f;
 
     private float rotationY;
@@ -39,18 +48,28 @@ public class LSJ_CamControl : MonoBehaviour
 
     [SerializeField]
     private Vector2 rotationXMinMax = new Vector3(-30f, 30f);
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
+    private void LateUpdate()
     {
-        // 마우스 우클릭 상태에서 실행 & 마우스 휠을 통한 거리 조정
+        CameraControl();
+
         if (Input.GetButton("Fire2"))
             CamRotate();
+    }
+
+    void CameraControl()
+    {
+        x += Input.GetAxis("Mouse Y") * sensitivity * -1;
+        y += Input.GetAxis("Mouse X") * sensitivity;
+
+        x = Mathf.Clamp(x, Xminmax.x, Xminmax.y);
+
+        transform.eulerAngles = new Vector3(x, y + 180, 0);
+        transform.position = target.position - transform.forward * distance;
     }
 
     void CamRotate()
