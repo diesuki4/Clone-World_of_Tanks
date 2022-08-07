@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +8,7 @@ using UnityEngine;
 // 모든 AI가 상대를 찾기 위해 FindGameObjectsWithTag() 를 호출하면
 // 부하가 너무 크기 때문에 최적화를 위해 작성된 풀이다.
 public class CKB_TagObjectFinder : MonoBehaviour
-{/*
+{
     public static CKB_TagObjectFinder Instance;
 
     void Awake()
@@ -16,19 +18,13 @@ public class CKB_TagObjectFinder : MonoBehaviour
     }
 
     // <태그 : 오브젝트 목록>을 딕셔너리로 관리한다.
-    public Dictionary<string, GameObject[]> TargetList = new Dictionary<string, GameObject[]>();
-    public List<bool> IsActive;
+    Dictionary<string, GameObject[]> TargetList;
+    List<bool> IsActive;
 
     void Start()
     {
+        TargetList = new Dictionary<string, GameObject[]>();
         IsActive = new List<bool>();
-    }
-
-    // 초기화
-    public void ClearTarget()
-    {
-        TargetList.Clear();
-        TargetList = new Dictionary<string, GameObject[]>(1);
     }
 
     // 딕셔너리에서 태그에 해당하는 오브젝트 목록을 검색한다.
@@ -42,12 +38,12 @@ public class CKB_TagObjectFinder : MonoBehaviour
             // 목록을 가져와서
             if (TargetList.TryGetValue(tag, out objsWithTag))
             {
-                Array.IndexOf(myDictionary.Keys.ToArray(), "a");
+                int idx = Array.IndexOf(TargetList.Keys.ToArray(), tag);
 
                 // 활성화 상태로 바꾸고
-                targetcollector.IsActive = true;
+                IsActive[idx] = true;
                 // 반환한다.
-                return targetcollector;
+                return objsWithTag;
             }
             // 목록이 존재하지 않으면
             else
@@ -63,6 +59,8 @@ public class CKB_TagObjectFinder : MonoBehaviour
 
             // 딕셔너리에 목록을 추가하고
             TargetList.Add(tag, objsWithTag);
+            // 상태도 추가한다.
+            IsActive.Add(false);
 
             // 반환한다.
             return objsWithTag;
@@ -72,20 +70,23 @@ public class CKB_TagObjectFinder : MonoBehaviour
     // 매 프레임 마다
     void Update()
     {
+        int length = TargetList.Count;
+
         // 딕셔너리의 모든 목록 중에
-        foreach (var target in TargetList)
+        for (int i = 0; i < length; ++i)
         {
-            if (target.Value != null)
+            if (TargetList.ElementAt(i).Value != null)
             {
                 // 목록이 활성화 상태이면
-                if (target.Value.IsActive)
+                if (IsActive[i])
                 {
+                    string key = TargetList.ElementAt(i).Key;
                     // 목록을 갱신하고
-                    target.Value.SetTarget(target.Key);
+                    TargetList[key] = GameObject.FindGameObjectsWithTag(key);
                     // 비활성화 상태로 바꾼다.
-                    target.Value.IsActive = false;
+                    IsActive[i] = false;
                 }
             }
         }
-    }*/
+    }
 }

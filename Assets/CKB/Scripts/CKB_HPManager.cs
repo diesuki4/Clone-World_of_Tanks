@@ -7,12 +7,17 @@ public class CKB_HPManager : MonoBehaviour
     [Header("죽었을 때 변경되는 모델")]
     public GameObject Effect;
     [Header("체력")]
-    public int HP = 100;
+    public float MaxHP = 200;
+    [HideInInspector]
+    public float HP;
     // 마지막으로 자신을 맞춘 탱크
     [HideInInspector]
     public GameObject LatestHit;
 
-    void Start() { }
+    void Start()
+    {
+        HP = MaxHP;
+    }
 
     void Update() { }
 
@@ -45,12 +50,9 @@ public class CKB_HPManager : MonoBehaviour
     // 죽음 처리
     public void Dead()
     {
-        // 등록된 모델이 있으면
-        if (Effect)
-            // 죽은 상태인 모델을 생성한다.
-            Instantiate(Effect, transform.position, transform.rotation);
+        // 등록된 모델을 생성한다.
+        Instantiate(Effect, transform.position, transform.rotation);
 
-        // 게임 오브젝트 삭제
         Destroy(gameObject);
     }
 }
