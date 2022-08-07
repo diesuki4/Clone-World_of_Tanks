@@ -13,6 +13,7 @@ public class CKB_TankAI : MonoBehaviour
 	public int FiringSpread = 500;
 	public GameObject Navigator;
 	public string TargetTag;
+	public string TargetLayer;
 
 	CKB_Tank ckbTank;
 	GameObject currentTarget;
@@ -141,7 +142,7 @@ public class CKB_TankAI : MonoBehaviour
 			}
 
 			// 타겟의 위치에 노이즈를 더한 위치로 탱크 상부와 포신을 서서히 회전시킨다.
-			ckbTank.Aim(currentTarget.transform.position + aimAround);
+			ckbTank.Aim(currentTarget.transform.position/* + aimAround*/);
 
 			// 발사 가능 상태이고 포신과 타겟의 가로, 세로 각도 차의 합이 5 미만일 때
 			if (canFire && ckbTank.AimingAngle < 5)
@@ -163,7 +164,7 @@ public class CKB_TankAI : MonoBehaviour
 				if (aiFireTime > 0)
 				{
 					// 무기 발사 (내부적으로 텀이 존재해서 매 프레임 발사되지는 않는다.)
-					ckbTank.cannon.Shoot();
+					ckbTank.cannon.ShootBullet();
 					aiFireTime -= Time.deltaTime;
 				}
 			}

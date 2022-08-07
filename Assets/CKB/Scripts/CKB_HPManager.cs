@@ -7,12 +7,17 @@ public class CKB_HPManager : MonoBehaviour
     [Header("죽었을 때 변경되는 모델")]
     public GameObject Effect;
     [Header("체력")]
-    public int HP = 100;
+    public float MaxHP = 200;
+    [HideInInspector]
+    public float HP;
     // 마지막으로 자신을 맞춘 탱크
     [HideInInspector]
     public GameObject LatestHit;
 
-    void Start() { }
+    void Start()
+    {
+        HP = MaxHP;
+    }
 
     void Update() { }
 

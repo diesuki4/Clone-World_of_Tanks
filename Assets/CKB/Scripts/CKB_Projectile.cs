@@ -8,6 +8,8 @@ public class CKB_Projectile : MonoBehaviour
     public GameObject Owner;
     [HideInInspector]
     public string TargetTag;
+    [HideInInspector]
+    public string TargetLayer;
     [Header("발사체 타격 효과")]
     public GameObject Effect;
 
@@ -50,7 +52,7 @@ public class CKB_Projectile : MonoBehaviour
 
         foreach (RaycastHit hit in hits) {
             // 감지된 게 내가 아니고 쏜 탱크가 아니면
-            if (hit.transform.root != transform.root && (!Owner || hit.transform.root != Owner.transform.root)) {
+            if (hit.transform.root != transform.root && (!Owner || GetTankTransform(hit.transform) != GetTankTransform(Owner.transform))) {
                 // 이펙트 표시, 폭발 데미지 처리
                 ProcessExplosion(hit.point);
                 break;
@@ -96,7 +98,7 @@ public class CKB_Projectile : MonoBehaviour
         }
 
         // 현재 위치에서 DamageRadius 내에 있는 모든 Collider
-        Collider[] dmhitColliders = Physics.OverlapSphere(position, DamageRadius, 1 << LayerMask.NameToLayer(TargetTag));
+        Collider[] dmhitColliders = Physics.OverlapSphere(position, DamageRadius, 1 << LayerMask.NameToLayer(TargetLayer));
 
         for (int i = 0; i < dmhitColliders.Length; ++i)
         {
@@ -123,7 +125,7 @@ public class CKB_Projectile : MonoBehaviour
     public void IgnoreSelf()
     {
         Collider myCol = GetComponent<Collider>();
-        Collider[] childCols = Owner.transform.root.GetComponentsInChildren<Collider>();
+        Collider[] childCols = GetTankTransform(Owner.transform).GetComponentsInChildren<Collider>();
 
         foreach (Collider childCol in childCols)
             Physics.IgnoreCollision(myCol, childCol);
@@ -132,12 +134,12 @@ public class CKB_Projectile : MonoBehaviour
     // 데미지 처리가 가능한지 검사 (false : 불가, true : 가능)
     public bool DoDamageCheck(GameObject go)
     {
-        // 이미 죽었거나 아군이면 불가
-        if (!go || go.transform.root.tag == Owner.tag)
-            return false;
-        // 나머지는 가능
-        else
+        // 아직 죽지 않았고 상대 팀이면 가능
+        if (go && GetTankTransform(go.transform).CompareTag(TargetTag))
             return true;
+        // 나머지는 불가능
+        else
+            return false;
     }
 
     // 게임 오브젝트가 플레이어인지 확인
@@ -146,6 +148,14 @@ public class CKB_Projectile : MonoBehaviour
         Debug.Log("[TODO] [CKB_Projectile.cs] 플레이어인지 확인");
         return false;
     }
+
+	Transform GetTankTransform(Transform tr)
+	{
+        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+            return tr;
+
+		return GetTankTransform(tr.parent);
+	}
 
     void OnCollisionEnter(Collision collision)
     {

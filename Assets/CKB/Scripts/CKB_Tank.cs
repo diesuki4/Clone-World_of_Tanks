@@ -60,7 +60,7 @@ public class CKB_Tank : MonoBehaviour
 	{
 		positionTemp = transform.position;
 		// 좌우 회전
-		transform.Rotate(new Vector3(0, moveVector.x * TurnSpeed * Time.deltaTime, 0));
+		transform.Rotate(new Vector3(0, moveVector.x * 100 * Time.deltaTime, 0));
 		// 전진, 후진
 		transform.position += transform.forward * moveVector.y * TankSpeed * Time.deltaTime;
 
@@ -91,7 +91,7 @@ public class CKB_Tank : MonoBehaviour
 		// 타겟의 회전값에 탱크의 X, Z 회전값을 적용 (좌우 회전만 변경하겠다)
 		rotationTarget.eulerAngles = new Vector3(transform.eulerAngles.x, rotationTarget.eulerAngles.y, transform.eulerAngles.z);
 		// 좌우 회전만 서서히 변경
-		transform.rotation = Quaternion.Lerp(transform.rotation, rotationTarget, TurnSpeed * 0.1f * Time.deltaTime);
+		transform.rotation = Quaternion.Lerp(transform.rotation, rotationTarget, 100 * 0.1f * Time.deltaTime);
 		positionTemp = transform.position;
 		// 전진
 		transform.position += transform.forward * TankSpeed * Time.deltaTime;
@@ -116,7 +116,7 @@ public class CKB_Tank : MonoBehaviour
 
 		// 탱크 상부
         // target 의 위치를 탱크 기준 로컬 위치로 변환
-        Vector3 localTarget = Turret.transform.root.InverseTransformPoint(target);
+        Vector3 localTarget = GetTankTransform(Turret.transform).InverseTransformPoint(target);
         // localTarget 을 보고 있을 때의 각도
         Quaternion targetlook = Quaternion.LookRotation(localTarget - Turret.transform.localPosition);
         // targetlook 에 현재 각도에서 target 의 Y축 각도를 적용한 것을 대입한다.
@@ -172,5 +172,13 @@ public class CKB_Tank : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, MaingunMinTurnX, MaingunMaxTurnX);
         // X축 회전만을 변경한다.
         MainGun.transform.localEulerAngles = MainGunBaseAxis * -rotationX + maingunEulerAngle;
+	}
+
+	Transform GetTankTransform(Transform tr)
+	{
+        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+            return tr;
+
+		return GetTankTransform(tr.parent);
 	}
 }

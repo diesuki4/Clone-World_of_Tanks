@@ -8,6 +8,8 @@ public class CKB_Cannon : MonoBehaviour
     public GameObject Owner;
     [Header("발사체")]
     public GameObject Projectile;
+    [Header("총알")]
+    public GameObject Bullet;
     public float FireRate = 0.1f;
     public float Spread = 1;
     public float ForceShoot = 8000;
@@ -27,12 +29,15 @@ public class CKB_Cannon : MonoBehaviour
     AudioSource audioSource;
     bool Reloading;
     string TargetTag;
+    string TargetLayer;
 
     void Start()
     {
-        Owner = transform.root.gameObject;
-
-        TargetTag = transform.root.GetComponent<CKB_TankAI>().TargetTag;
+        Transform tankTr = GetTankTransform(transform);
+        
+        Owner = tankTr.gameObject;
+        TargetTag = tankTr.GetComponent<CKB_TankAI>().TargetTag;
+        TargetLayer = tankTr.GetComponent<CKB_TankAI>().TargetLayer;
 
         audioSource = GetComponent<AudioSource>();
     }
@@ -76,15 +81,11 @@ public class CKB_Cannon : MonoBehaviour
                 --Ammo;
                 nextFireTime = Time.time;
 
-                // 발사체를 포신의 위치와 회전값으로 초기화
-                Vector3 projectileposition = transform.position;
-                Quaternion projectilerotate = transform.rotation;
-
                 // Muzzle Flash 이펙트가 있을 때
                 if (Muzzle)
                 {
                     // Muzzle 효과를 자식으로 생성한다.
-                    GameObject muzzle = Instantiate(Muzzle, projectileposition, projectilerotate, transform);
+                    GameObject muzzle = Instantiate(Muzzle, transform.position, transform.rotation, transform);
                     // MuzzleLifeTime 뒤에 소멸하도록 지정한다.
                     Destroy(muzzle, MuzzleLifeTime);
                 }
@@ -93,10 +94,9 @@ public class CKB_Cannon : MonoBehaviour
                 Vector3 spread = new Vector3(Random.Range(-Spread, Spread), Random.Range(-Spread, Spread), Random.Range(-Spread, Spread)) / 100;
                 // 발사체가 날아갈 방향
                 Vector3 direction = transform.forward + spread;
-                projectilerotate = Quaternion.LookRotation(direction);
 
                 // 발사체를 생성한다.
-                GameObject projectile = Instantiate(Projectile, projectileposition, projectilerotate);
+                GameObject projectile = Instantiate(Projectile, transform.position, Quaternion.LookRotation(direction));
 
                 // 발사체 컴포넌트
                 CKB_Projectile ckbProjectile = projectile.GetComponent<CKB_Projectile>();
@@ -105,6 +105,8 @@ public class CKB_Cannon : MonoBehaviour
                 ckbProjectile.Owner = Owner;
                 // 적의 태그
                 ckbProjectile.TargetTag = TargetTag;
+                // 적의 레이어
+                ckbProjectile.TargetLayer = TargetLayer;
                 // 자신과는 충돌하지 않는다.
                 ckbProjectile.IgnoreSelf();
 
@@ -125,4 +127,56 @@ public class CKB_Cannon : MonoBehaviour
             }
         }
     }
+
+    public void ShootBullet()
+    {
+        // 총알이 있으면
+        if (Ammo > 0)
+        {
+            // FireRate 마다 총알을 발사한다. (재장전 시간과는 별개)
+            if (Time.time > nextFireTime + FireRate)
+            {
+                --Ammo;
+                nextFireTime = Time.time;
+
+                // Muzzle Flash 이펙트가 있을 때
+                if (Muzzle)
+                {
+                    // Muzzle 효과를 자식으로 생성한다.
+                    GameObject muzzle = Instantiate(Muzzle, transform.position, transform.rotation, transform);
+                    // MuzzleLifeTime 뒤에 소멸하도록 지정한다.
+                    Destroy(muzzle, MuzzleLifeTime);
+                }
+
+                // 탄퍼짐 정도를 설정할 수 있다.
+                Vector3 spread = new Vector3(Random.Range(-Spread, Spread), Random.Range(-Spread, Spread), Random.Range(-Spread, Spread)) / 100;
+                // 발사체가 날아갈 방향
+                Vector3 direction = transform.forward + spread;
+
+                // 발사체를 생성한다.
+                GameObject bullet = Instantiate(Bullet, transform.position, Quaternion.LookRotation(direction));
+
+                // 발사체 컴포넌트
+                CKB_Bullet ckbBullet = bullet.GetComponent<CKB_Bullet>();
+
+                // 쏜 탱크는 나다.
+                ckbBullet.Owner = Owner;
+                // 적의 태그
+                ckbBullet.TargetTag = TargetTag;
+
+                // 사운드 효과 재생
+                audioSource.PlayOneShot(SoundGun);
+
+                nextFireTime += FireRate;
+            }
+        }
+    }
+
+	Transform GetTankTransform(Transform tr)
+	{
+        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+            return tr;
+
+		return GetTankTransform(tr.parent);
+	}
 }
