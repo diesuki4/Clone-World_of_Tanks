@@ -35,6 +35,9 @@ public class CKB_OutlineManager : MonoBehaviour
                     Debug.DrawLine(newCameraPos, newCameraPos + ray.direction * 500, Color.red, Time.deltaTime);
 
                 currentAngle += deltaAngle;
+
+                if (currentRadius == 0)
+                    break;
             }
 
             currentRadius += deltaRadius;
