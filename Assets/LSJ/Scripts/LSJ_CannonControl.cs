@@ -18,12 +18,20 @@ public class LSJ_CannonControl : MonoBehaviour
 
     float mindeltax;
     float maxdeltax;
+
+    // private Quaternion currRot = Quaternion.identity;
     // float rotationY = 0f;
     // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
         tr = GetComponent<Transform>();
+        //currRot = tr.localRotation;
+    }
+    void Start()
+    {
         tr.rotation = Quaternion.Euler(0, 0, 0);
+        
         // my = -transform.eulerAngles.x;
         // angle = -transform.eulerAngles.x;
     }
@@ -35,7 +43,7 @@ public class LSJ_CannonControl : MonoBehaviour
         //dir.x = 0f;
         //var nextRot = Quaternion.LookRotation(dir);
         //transform.rotation = Quaternion.Slerp(transform.rotation, nextRot, Time.deltaTime * rotSpeed);
-        
+
         // mindeltax += -30f * Time.deltaTime;
         // maxdeltax += 5f * Time.deltaTime;
 
@@ -48,10 +56,7 @@ public class LSJ_CannonControl : MonoBehaviour
         // my += v * rotSpeed * Time.deltaTime;
         // my = Mathf.Clamp(my, -30, 30);
         // transform.eulerAngles = new Vector3(-my, 0, 0);
-        
-        float angle = -Input.GetAxis("Mouse Y") * Time.deltaTime * rotSpeed;
-        angle = Mathf.Clamp(angle, minimumY, maximumY);
-        tr.Rotate(angle, 0, 0);
+
         /*if (tr.rotation == Quaternion.Euler(mindeltax, 0, 0))
             tr.rotation = Quaternion.Euler(-30, 0, 0);
         if (tr.rotation == Quaternion.Euler(maxdeltax, 0, 0))
@@ -61,5 +66,14 @@ public class LSJ_CannonControl : MonoBehaviour
         // rotationY = Mathf.Clamp(rotationY, minimumY, maximumY);
 
         // tr.Rotate(0, 0, rotationY);
+
+        float angle = -Input.GetAxis("Mouse ScrollWheel") * Time.deltaTime * rotSpeed;
+        angle = Mathf.Clamp(angle, minimumY, maximumY);
+        //tr.localRotation = Quaternion.Slerp(tr.localRotation, currRot, Time.deltaTime * 3.0f);
+        tr.Rotate(angle, 0, 0);
+        /*if (tr.rotation.x > -15)
+            tr.rotation = Quaternion.Euler(-15, 0, 0);
+        if (tr.rotation.x < 0)
+            tr.rotation = Quaternion.Euler(-0, 0, 0);*/
     }
 }

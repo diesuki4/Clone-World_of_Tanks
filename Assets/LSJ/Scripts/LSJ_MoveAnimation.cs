@@ -14,7 +14,11 @@ public class LSJ_MoveAnimation : MonoBehaviour
     // public float animSpeed = 1.0f;
     // Material mat;
     // GameObject player;
-
+    public static LSJ_MoveAnimation Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -27,14 +31,25 @@ public class LSJ_MoveAnimation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float offset = Time.time * scrollSpeed * Input.GetAxisRaw("Vertical");
-        renderer.material.SetTextureOffset("_MainTex", new Vector2(offset, 0));
-        renderer.material.SetTextureOffset("_BumpMap", new Vector2(offset, 0));
         // if (playermove.isMove == false)
         //    mat.mainTextureOffset += Vector2.zero * animSpeed * Time.deltaTime;
-
+        MoveAnim();
 
         // LSJ_PlayerMove playermove = player.GetComponent<LSJ_PlayerMove>();
         //mat.mainTextureOffset += Vector2.left * animSpeed * Time.deltaTime;
+    }
+
+    public  void MoveAnim()
+    {
+        float offset = Time.time * scrollSpeed * Input.GetAxisRaw("Vertical");
+        renderer.material.SetTextureOffset("_MainTex", new Vector2(offset, 0));
+        renderer.material.SetTextureOffset("_BumpMap", new Vector2(offset, 0));
+    }
+
+    public void MoveAnim2()
+    {
+        float offset = Time.time * scrollSpeed;
+        renderer.material.SetTextureOffset("_MainTex", new Vector2(offset, 0));
+        renderer.material.SetTextureOffset("_BumpMap", new Vector2(offset, 0));
     }
 }

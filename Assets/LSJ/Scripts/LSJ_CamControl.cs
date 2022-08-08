@@ -11,6 +11,8 @@ using UnityEngine;
 // 마우스 우클릭을 한 상태에서 움직이면 주포 회전 없이 360도 회전 가능
 // 이 경우, 포탑 및 주포 이동 정지
 // 마우스 휠로 기본거리 - 중거리 - 원거리 이동
+
+// FOV 40 70 100
 public class LSJ_CamControl : MonoBehaviour
 {
 
@@ -21,6 +23,10 @@ public class LSJ_CamControl : MonoBehaviour
     public Vector2 Xminmax;
     public Transform target;
     public GameObject zoomcam;
+    public GameObject crosshair;
+
+    public float FOVspeed = 10.0f;
+    // public Transform[] ShiftCamPos;
 
     [Header("카메라 회전")]
     [SerializeField]
@@ -57,18 +63,10 @@ public class LSJ_CamControl : MonoBehaviour
     private void LateUpdate()
     {
         CameraControl();
-
-        /*if (Input.GetButton("Fire2"))
-            CamRotate();*/
-        if (Input.GetButtonDown("Fire2"))
-        {
-            ZoomMode();
-        }
-
-        if(Input.GetButtonUp("Fire2"))
-        {
-            ZoomOut();
-        }
+        ZoomIn();
+        ZoomOut();
+        FOVmove();
+        //Shiftmove();
     }
 
     void CameraControl()
@@ -100,13 +98,56 @@ public class LSJ_CamControl : MonoBehaviour
         transform.position = basicTarget.position - transform.forward * distanceFromTarget;
     }
 
-    void ZoomMode()
+    void ZoomIn()
     {
-        zoomcam.SetActive(true);
+        if(Input.GetButtonDown("Fire2"))
+        {
+            zoomcam.SetActive(true);
+            crosshair.SetActive(true);
+        }
     }
 
-    void ZoomOut()
+    // 발사 후 넉백
+    void ZoomOut() 
     {
-        zoomcam.SetActive(false);
+        if(Input.GetButtonUp("Fire2"))
+        {
+            zoomcam.SetActive(false);
+            crosshair.SetActive(false);
+        }
     }
+
+    void FOVmove()
+    {
+        float scroll = -Input.GetAxis("Mouse ScrollWheel") * FOVspeed;
+
+        if (Camera.main.fieldOfView <= 40.0f && scroll < 0)
+            Camera.main.fieldOfView = 40.0f;
+        else if (Camera.main.fieldOfView >= 100.0f && scroll > 0)
+            Camera.main.fieldOfView = 100.0f;
+        else
+            Camera.main.fieldOfView += scroll;
+
+        // 일정 구간 줌으로 들어가면 캐릭터를 바라본다
+        /* if (cameraTarget && thisCamera.fieldOfView <= 30.0f)
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(cameraTarget.position - transform.position), 0.15f);
+        } */
+        // 일정 ㅜ간 밖에서는 원래의 카메라 방향으로 되돌아감
+        /* {
+            transform.rotation = Quaternion.Slerp(transform, rotationX, Quaternion.LookRotation(worldDefaultForward), 0.15f);
+        }*/
+    }
+
+    /* void Shiftmove()
+    {
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            for (int i = 1; i < ShiftCamPos.Length; i++)
+            {
+                Camera.main.transform.position = ShiftCamPos[i].position;
+                
+            }
+        }
+    }*/
 }

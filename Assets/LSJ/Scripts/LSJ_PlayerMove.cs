@@ -7,12 +7,12 @@ using UnityEngine;
 // 급정지 : Space 입력 시 급정지(핸드브레이크)
 
 // 360도 이동 WASD(전후좌우)
-// R 키 : 전차 전진 순항모드(1회 입력 - 2회 입력 - 3회 입력 순으로 빨라짐)
-// F 키 : 전차 후진 순항모드(1회 입력 - 2회 입력 - 3회 입력 순으로 느려짐)
+// R 키 : 전차 전진 순항모드
+// F 키 : 전차 후진 순항모드
 
 // WASD 이동 키를 입력 시 순항모드는 바로 해제
 
-// 기본 이동 / 전후진 순항 모드 / 급정지 FSM 설계
+// 기본 이동 / 전후진 순항 모드 
 
 public class LSJ_PlayerMove : MonoBehaviour
 {
@@ -22,7 +22,6 @@ public class LSJ_PlayerMove : MonoBehaviour
     private Rigidbody rbody;
     private Transform tr;
 
-    public bool isMove;
 
     // Start is called before the first frame update
     void Start()
@@ -30,13 +29,18 @@ public class LSJ_PlayerMove : MonoBehaviour
         rbody = GetComponent<Rigidbody>();
         tr = GetComponent<Transform>();
         rbody.centerOfMass= new Vector3(0.0f, -0.5f, 0.0f);
-        isMove = false;
     }
 
     // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
-         TankMove();   
+         TankMove();
+    }
+
+    private void Update()
+    {
+        CruiseForward();
+        CruiseBackward();
     }
 
     public void TankMove()
@@ -47,26 +51,23 @@ public class LSJ_PlayerMove : MonoBehaviour
         tr.Translate(Vector3.forward * moveSpeed * v * Time.deltaTime);
         tr.Rotate(Vector3.up * rotSpeed * h * Time.deltaTime);
 
-        isMove = true;
     }
 
     // 전진 순항 모드
+    private bool isForwardMoving = false;
+    private bool isBackMoving = false;
+    private float CruiseForwardSpeed = 15f;
+    private float CruiseBackSpeed = 15f;
     public void CruiseForward()
     {
-        if(Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            // 느림
-
-            if(Input.GetKeyDown(KeyCode.R))
-            {
-                // 중간
-
-                if(Input.GetKeyDown(KeyCode.R))
-                {
-                    // 최고
-
-                }
-            }
+            isForwardMoving = !isForwardMoving;
+        }
+        if (isForwardMoving)
+        {
+            LSJ_MoveAnimation.Instance.MoveAnim2();
+            transform.position += transform.forward * CruiseForwardSpeed * Time.deltaTime;
         }
     }
 
@@ -75,26 +76,12 @@ public class LSJ_PlayerMove : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            // 느림
-
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                // 중간
-
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    // 최고
-
-                }
-            }
+            isBackMoving = !isBackMoving;
         }
-    }
-
-    public void UrgentBreak()
-    {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (isBackMoving)
         {
-
+            LSJ_MoveAnimation.Instance.MoveAnim2();
+            transform.position += -transform.forward * CruiseForwardSpeed * Time.deltaTime;
         }
     }
 }
