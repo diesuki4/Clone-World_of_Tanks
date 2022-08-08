@@ -6,7 +6,7 @@ public class LSJ_TankShoot : MonoBehaviour
 {
     public GameObject cannon = null;
     public Transform firePos;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -16,14 +16,12 @@ public class LSJ_TankShoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
-        {
-            Fire();
-        }
+        Fire();
     }
 
     void Fire()
     {
-        Instantiate(cannon, firePos.position, firePos.rotation);
+        if(Input.GetMouseButtonDown(0))
+            Instantiate(cannon, firePos.position, firePos.rotation);
     }
 }
