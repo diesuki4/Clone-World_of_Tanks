@@ -48,9 +48,7 @@ public class CKB_OutlineManager : MonoBehaviour
 
         foreach (Ray ray in rays)
         {
-            RaycastHit hitInfo;
-
-            if (Physics.Raycast(ray, out hitInfo, float.MaxValue, detectLayers))
+            foreach (RaycastHit hitInfo in Physics.RaycastAll(ray, float.MaxValue, detectLayers))
             {
                 GameObject hitObj = hitInfo.transform.gameObject;
                 Outline outline = null;
