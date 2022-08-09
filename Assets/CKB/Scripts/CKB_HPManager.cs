@@ -50,9 +50,20 @@ public class CKB_HPManager : MonoBehaviour
     // 죽음 처리
     public void Dead()
     {
+        // 자신을 죽인 탱크의 점수를 증가시킨다.
+        if (!IsPlayer(LatestHit))
+            ++LatestHit.GetComponent<CKB_Tank>().killScore;
+
         // 등록된 모델을 생성한다.
         Instantiate(Effect, transform.position, transform.rotation);
 
         Destroy(gameObject);
+    }
+
+    // 게임 오브젝트가 플레이어인지 확인
+    bool IsPlayer(GameObject go)
+    {
+        Debug.Log("[TODO] [CKB_HPManager.cs] 플레이어인지 확인");
+        return false;
     }
 }

@@ -41,7 +41,6 @@ public class CKB_OutlineManager : MonoBehaviour
             }
 
             currentRadius += deltaRadius;
-            print(currentRadius);
         }
 
         List<GameObject> objDetected = new List<GameObject>();
@@ -65,7 +64,7 @@ public class CKB_OutlineManager : MonoBehaviour
         }
 
         foreach (GameObject AI in arrAI)
-            if (!objDetected.Contains(AI))
+            if (!objDetected.Contains(AI) && AI)
                 AI.GetComponent<Outline>().enabled = false;
     }
 /*

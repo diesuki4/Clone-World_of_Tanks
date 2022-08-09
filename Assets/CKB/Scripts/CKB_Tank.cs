@@ -32,6 +32,9 @@ public class CKB_Tank : MonoBehaviour
 	// 포신과 타겟의 가로, 세로 각도 차의 합
 	[HideInInspector]
 	public float AimingAngle;
+	[HideInInspector]
+	public float killScore;
+
 
 	void Awake()
 	{
@@ -48,6 +51,8 @@ public class CKB_Tank : MonoBehaviour
 			
 		if (MainGun != null)
 			maingunEulerAngle = MainGun.transform.localEulerAngles;
+
+		killScore = 0;
     }
 
     void Update()

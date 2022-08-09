@@ -24,7 +24,8 @@ public class CKB_Cannon : MonoBehaviour
     [Header("사운드 효과")]
     public AudioClip SoundGun;
 
-    float nextFireTime = 0;
+    [HideInInspector]
+    public float nextFireTime = 0;
     float reloadTimeTemp;
     AudioSource audioSource;
     bool Reloading;
