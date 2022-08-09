@@ -40,14 +40,26 @@ public class CKB_Bullet : MonoBehaviour
     {
         // AI 이면 ExplosionForce 를 가한다.
         if (!IsPlayer(go))
-            go.GetComponent<Rigidbody>().AddExplosionForce(ExplosionForce, position, ExplosionRadius, 3.0f);
+        {
+            Rigidbody rb = go.GetComponent<Rigidbody>();
+
+            if (rb)
+                rb.AddExplosionForce(ExplosionForce, position, ExplosionRadius, 3.0f);
+        }
 
         if (IsPlayer(go))
+        {
             // 플레이어에게 데미지를 적용한다.
             Debug.Log("[TODO] [CKB_Bullet.cs] 플레이어 데미지 처리");
+        }
         else
+        {
             // AI 에게 데미지를 적용한다.
-            go.GetComponent<CKB_HPManager>().ApplyDamage(Owner, Damage);
+            CKB_HPManager ckbHPManager = go.GetComponent<CKB_HPManager>();
+
+            if (ckbHPManager)
+                ckbHPManager.ApplyDamage(Owner, Damage);
+        }
     }
 
     // 데미지 처리가 가능한지 검사 (false : 불가, true : 가능)

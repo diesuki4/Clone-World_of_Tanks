@@ -109,12 +109,21 @@ public class CKB_Projectile : MonoBehaviour
 
             // IgnoreTag, 피아 식별, 내가 포함됐는지 검사한다.
             if (DoDamageCheck(hit.gameObject))
+            {
                 if (IsPlayer(hit.gameObject))
+                {
                     // 플레이어에게 데미지를 적용한다.
                     Debug.Log("[TODO] [CKB_Projectile.cs] 플레이어 데미지 처리");
+                }
                 else if (!Owner || (Owner && hit.gameObject != Owner.gameObject))
+                {
                     // AI 에게 데미지를 적용한다.
-                    hit.transform.GetComponent<CKB_HPManager>().ApplyDamage(Owner, Damage);
+                    CKB_HPManager ckbHPManager = hit.transform.GetComponent<CKB_HPManager>();
+
+                    if (ckbHPManager)
+                        ckbHPManager.ApplyDamage(Owner, Damage);
+                }
+            }
         }
 
         // 소멸
