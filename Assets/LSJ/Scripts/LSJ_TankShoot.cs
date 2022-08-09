@@ -10,7 +10,7 @@ public class LSJ_TankShoot : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        cannon = (GameObject)Resources.Load("Cannon");
+        cannon = (GameObject)Resources.Load("Bullet");
     }
 
     // Update is called once per frame

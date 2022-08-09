@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // 플레이어를 기준으로 3인칭 시점 : 360도 회전
 // 플레이어를 기준으로 1인칭 시점으로 전환 가능
@@ -24,6 +25,7 @@ public class LSJ_CamControl : MonoBehaviour
     public Transform target;
     public GameObject zoomcam;
     public GameObject crosshair;
+    public GameObject cursorUI;
 
     public float FOVspeed = 10.0f;
     // public Transform[] ShiftCamPos;
@@ -38,11 +40,11 @@ public class LSJ_CamControl : MonoBehaviour
     [SerializeField]
     private Transform basicTarget;
 
-    [SerializeField]
-    private Transform middleTarget;
+    // [SerializeField]
+    // private Transform middleTarget;
 
-    [SerializeField]
-    private Transform RemoteTarget;
+    // [SerializeField]
+    // private Transform RemoteTarget;
 
     [SerializeField]
     private float distanceFromTarget = 5.0f;
@@ -104,6 +106,7 @@ public class LSJ_CamControl : MonoBehaviour
         {
             zoomcam.SetActive(true);
             crosshair.SetActive(true);
+            cursorUI.SetActive(false);
         }
     }
 
@@ -114,6 +117,7 @@ public class LSJ_CamControl : MonoBehaviour
         {
             zoomcam.SetActive(false);
             crosshair.SetActive(false);
+            cursorUI.SetActive(true);
         }
     }
 

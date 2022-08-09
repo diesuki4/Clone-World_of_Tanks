@@ -14,7 +14,7 @@ using UnityEngine;
 
 // 기본 이동 / 전후진 순항 모드 
 
-public class LSJ_PlayerMove : MonoBehaviour
+public class LSJ_PlayerMove2 : MonoBehaviour
 {
     public float moveSpeed = 30f; // 이동 속도
     public float rotSpeed = 50f; // 회전 속도
@@ -28,13 +28,13 @@ public class LSJ_PlayerMove : MonoBehaviour
     {
         rbody = GetComponent<Rigidbody>();
         tr = GetComponent<Transform>();
-        rbody.centerOfMass= new Vector3(0.0f, -0.5f, 0.0f);
+        rbody.centerOfMass = new Vector3(0.0f, -0.5f, 0.0f);
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-         TankMove();
+        TankMove();
     }
 
     private void Update()
@@ -58,7 +58,7 @@ public class LSJ_PlayerMove : MonoBehaviour
     private bool isBackMoving = false;
     private float CruiseForwardSpeed = 15f;
     private float CruiseBackSpeed = 15f;
-    
+
     public void CruiseForward()
     {
         if (isForwardMoving)
@@ -73,9 +73,9 @@ public class LSJ_PlayerMove : MonoBehaviour
                 isForwardMoving = true;
             }
         }
-        if(isForwardMoving == true)
+        if (isForwardMoving == true)
         {
-            if(Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 isForwardMoving = false;
             }
