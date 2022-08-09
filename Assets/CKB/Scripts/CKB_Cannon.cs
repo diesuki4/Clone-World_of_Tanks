@@ -166,7 +166,7 @@ public class CKB_Cannon : MonoBehaviour
                 ckbBullet.TargetTag = TargetTag;
 
                 // 사운드 효과 재생
-                audioSource.PlayOneShot(SoundGun);
+                //audioSource.PlayOneShot(SoundGun);
 
                 nextFireTime += FireRate;
             }

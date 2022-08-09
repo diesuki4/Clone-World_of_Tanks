@@ -35,7 +35,6 @@ public class CKB_Tank : MonoBehaviour
 	[HideInInspector]
 	public float killScore;
 
-
 	void Awake()
 	{
 		track = GetComponentInChildren<CKB_TrackMover>();

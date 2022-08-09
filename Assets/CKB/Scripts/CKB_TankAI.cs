@@ -23,6 +23,9 @@ public class CKB_TankAI : MonoBehaviour
 	float aiFireDelay = 0;
 	float aiFireTime = 0;
 
+	public float firePosYCorrection = 1;
+    public bool DebugMode = false;
+
 	void Awake()
 	{
 		ckbTank = GetComponent<CKB_Tank>();
@@ -142,7 +145,7 @@ public class CKB_TankAI : MonoBehaviour
 			}
 
 			// 타겟의 위치에 노이즈를 더한 위치로 탱크 상부와 포신을 서서히 회전시킨다.
-			ckbTank.Aim(currentTarget.transform.position/* + aimAround*/);
+			ckbTank.Aim(currentTarget.transform.position + Vector3.up * firePosYCorrection/* + aimAround*/);
 
 			// 발사 가능 상태이고 포신과 타겟의 가로, 세로 각도 차의 합이 5 미만일 때
 			if (canFire && ckbTank.AimingAngle < 5)
@@ -181,6 +184,10 @@ public class CKB_TankAI : MonoBehaviour
 				aiTime -= Time.deltaTime;
 			}
 		}
+
+        if (DebugMode)
+            Debug.DrawLine(ckbTank.cannon.transform.position, ckbTank.cannon.transform.position + ckbTank.cannon.transform.forward * FireDistance,
+				gameObject.tag == "Enemy" ? Color.red : Color.green, Time.deltaTime);
 	}
 
 	// TargetTag 에 등록된 태그를 갖는 오브젝트 중 가장 가까운 오브젝트를 타겟으로 지정
