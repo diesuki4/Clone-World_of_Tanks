@@ -47,7 +47,9 @@ public class CKB_OutlineManager : MonoBehaviour
 
         foreach (Ray ray in rays)
         {
-            foreach (RaycastHit hitInfo in Physics.RaycastAll(ray, float.MaxValue, detectLayers))
+            RaycastHit hitInfo;
+            
+            if (Physics.Raycast(ray, out hitInfo, float.MaxValue, detectLayers))
             {
                 GameObject hitObj = hitInfo.transform.gameObject;
                 Outline outline = null;
@@ -59,6 +61,8 @@ public class CKB_OutlineManager : MonoBehaviour
                 {
                     outline.enabled = true;
                     objDetected.Add(hitObj);
+
+                    break;
                 }
             }
         }
