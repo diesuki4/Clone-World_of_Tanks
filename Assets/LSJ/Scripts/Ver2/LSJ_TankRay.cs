@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class LSJ_TankRay : MonoBehaviour
 {
-    public Image TankAimUI;
-    float distance = 100000f;
+    public GameObject TankAimUI;
+    float distance = 10f;
+    Vector3 currentPos;
 
     // Start is called before the first frame update
     void Start()
@@ -15,7 +16,7 @@ public class LSJ_TankRay : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         Ray ray = new Ray(transform.position, transform.forward);
         Debug.DrawRay(ray.origin, ray.direction * 100.0f, Color.red);
@@ -26,7 +27,10 @@ public class LSJ_TankRay : MonoBehaviour
         }
         else
         {
-            Vector3 currentPos = ray.GetPoint(distance);
+            currentPos = ray.GetPoint(distance);
         }
+
+        Vector2 raycurrent = Camera.main.WorldToScreenPoint(currentPos); 
+        TankAimUI.transform.position = raycurrent;
     }
 }

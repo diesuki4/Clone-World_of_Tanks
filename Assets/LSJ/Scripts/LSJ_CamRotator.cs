@@ -23,11 +23,11 @@ public class LSJ_CamRotator : MonoBehaviour
     [SerializeField]
     private Transform basicTarget;
 
-    [SerializeField]
-    private Transform middleTarget;
+    //[SerializeField]
+    //private Transform middleTarget;
 
-    [SerializeField]
-    private Transform RemoteTarget;
+    //[SerializeField]
+    //private Transform RemoteTarget;
 
     [SerializeField]
     private float distanceFromTarget = 5.0f;
@@ -40,7 +40,9 @@ public class LSJ_CamRotator : MonoBehaviour
 
     [SerializeField]
     private Vector2 rotationXMinMax = new Vector3(-30f, 30f);
-    // Start is called before the first frame update
+
+    [SerializeField]
+    private float FOVspeed = 30f;
     void Start()
     {
 
@@ -49,26 +51,48 @@ public class LSJ_CamRotator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // 마우스 우클릭 상태에서 실행 & 마우스 휠을 통한 거리 조정
-        if (Input.GetButton("Fire2"))
-            CamRotate();
+        RemoteControl();
     }
 
-    void CamRotate()
+    void RemoteControl()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        if(Input.GetButton("Fire2"))
+        {
+            float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
+            float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        rotationY += mouseX;
-        rotationX += mouseY;
+            rotationY += mouseX;
+            rotationX += mouseY;
 
-        rotationX = Mathf.Clamp(rotationX, rotationXMinMax.x, rotationXMinMax.y);
+            rotationX = Mathf.Clamp(rotationX, rotationXMinMax.x, rotationXMinMax.y);
 
-        Vector3 nextRotation = new Vector3(rotationX, rotationY);
+            Vector3 nextRotation = new Vector3(rotationX, rotationY);
 
-        currentRotation = Vector3.SmoothDamp(currentRotation, nextRotation, ref smoothVelocity, smoothTime);
-        transform.localEulerAngles = currentRotation;
+            currentRotation = Vector3.SmoothDamp(currentRotation, nextRotation, ref smoothVelocity, smoothTime);
+            transform.localEulerAngles = currentRotation;
 
-        transform.position = basicTarget.position - transform.forward * distanceFromTarget;
+            transform.position = basicTarget.position - transform.forward * distanceFromTarget;
+
+            float scroll = -Input.GetAxis("Mouse ScrollWheel") * FOVspeed;
+
+            if (Camera.main.fieldOfView <= 30.0f && scroll < 0)
+                Camera.main.fieldOfView = 30.0f;
+            else if (Camera.main.fieldOfView >= 90.0f && scroll > 0)
+                Camera.main.fieldOfView = 90.0f;
+            else
+                Camera.main.fieldOfView += scroll;
+        }
     }
+
+    /*void FieldOfViewMove()
+    {
+        float scroll = -Input.GetAxis("Mouse ScrollWheel") * FOVspeed;
+
+        if (Camera.main.fieldOfView <= 30.0f && scroll < 0)
+            Camera.main.fieldOfView = 30.0f;
+        else if (Camera.main.fieldOfView >= 90.0f && scroll > 0)
+            Camera.main.fieldOfView = 90.0f;
+        else
+            Camera.main.fieldOfView += scroll;
+    }*/
 }

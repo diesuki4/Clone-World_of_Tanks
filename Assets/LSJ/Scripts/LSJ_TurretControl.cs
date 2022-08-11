@@ -22,10 +22,15 @@ public class LSJ_TurretControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        turretRotate();
+    }
+
+    public void turretRotate()
+    {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Debug.DrawRay(ray.origin, ray.direction * 100.0f, Color.green);
 
-        if(Physics.Raycast(ray,out hit, Mathf.Infinity))
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
             Vector3 relative = tr.InverseTransformPoint(hit.point);
             float angle = Mathf.Atan2(relative.x, relative.z) * Mathf.Rad2Deg;

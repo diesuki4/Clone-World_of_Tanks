@@ -22,6 +22,12 @@ public class LSJ_PlayerMove2 : MonoBehaviour
     private Rigidbody rbody;
     private Transform tr;
 
+    public static LSJ_PlayerMove2 Instance = null;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+    }
 
     // Start is called before the first frame update
     void Start()

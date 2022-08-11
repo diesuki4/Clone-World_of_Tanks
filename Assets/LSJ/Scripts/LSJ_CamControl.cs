@@ -24,10 +24,10 @@ public class LSJ_CamControl : MonoBehaviour
     public Vector2 Xminmax;
     public Transform target;
     public GameObject zoomcam;
-    public GameObject crosshair;
+    public GameObject zoomPanel;
     public GameObject cursorUI;
 
-    public float FOVspeed = 10.0f;
+    public float FOVspeed = 100.0f;
     // public Transform[] ShiftCamPos;
 
     [Header("카메라 회전")]
@@ -57,20 +57,45 @@ public class LSJ_CamControl : MonoBehaviour
 
     [SerializeField]
     private Vector2 rotationXMinMax = new Vector3(-30f, 30f);
+
+    [Header("카메라 원거리 회전")]
+    [SerializeField]
+    private float r_mouseSensitivity = 3f;
+
+    private float r_rotationY;
+    private float r_rotationX;
+
+    [SerializeField]
+    private Transform r_basicTarget;
+
+    [SerializeField]
+    private float r_distanceFromTarget = 5.0f;
+
+    private Vector3 r_currentRotation;
+    private Vector3 r_smoothVelocity = Vector3.zero;
+
+    [SerializeField]
+    private float r_smoothTime = 0.2f;
+
+    [SerializeField]
+    private Vector2 r_rotationXMinMax = new Vector3(-30f, 30f);
+
+    [SerializeField]
+    private float r_FOVspeed = 30f;
     private void Start()
     {
-
+        Camera.main.fieldOfView = 40.0f;
     }
 
     private void LateUpdate()
     {
         CameraControl();
-        ZoomIn();
-        ZoomOut();
+        ZoomMode();
         FOVmove();
-        //Shiftmove();
+        RemoteControl();
     }
 
+    // 기본 
     void CameraControl()
     {
         x += Input.GetAxis("Mouse Y") * sensitivity * -1;
@@ -100,23 +125,22 @@ public class LSJ_CamControl : MonoBehaviour
         transform.position = basicTarget.position - transform.forward * distanceFromTarget;
     }
 
-    void ZoomIn()
+    private bool isZooming;
+    void ZoomMode()
     {
-        if(Input.GetButtonDown("Fire2"))
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+            isZooming = !isZooming;
+
+        if(isZooming)
         {
             zoomcam.SetActive(true);
-            crosshair.SetActive(true);
+            zoomPanel.SetActive(true);
             cursorUI.SetActive(false);
         }
-    }
-
-    // 발사 후 넉백
-    void ZoomOut() 
-    {
-        if(Input.GetButtonUp("Fire2"))
+        else
         {
             zoomcam.SetActive(false);
-            crosshair.SetActive(false);
+            zoomPanel.SetActive(false);
             cursorUI.SetActive(true);
         }
     }
@@ -131,27 +155,34 @@ public class LSJ_CamControl : MonoBehaviour
             Camera.main.fieldOfView = 100.0f;
         else
             Camera.main.fieldOfView += scroll;
-
-        // 일정 구간 줌으로 들어가면 캐릭터를 바라본다
-        /* if (cameraTarget && thisCamera.fieldOfView <= 30.0f)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(cameraTarget.position - transform.position), 0.15f);
-        } */
-        // 일정 ㅜ간 밖에서는 원래의 카메라 방향으로 되돌아감
-        /* {
-            transform.rotation = Quaternion.Slerp(transform, rotationX, Quaternion.LookRotation(worldDefaultForward), 0.15f);
-        }*/
     }
-
-    /* void Shiftmove()
+    void RemoteControl()
     {
-        if(Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetButton("Fire2"))
         {
-            for (int i = 1; i < ShiftCamPos.Length; i++)
-            {
-                Camera.main.transform.position = ShiftCamPos[i].position;
-                
-            }
+            float mouseX = Input.GetAxis("Mouse X") * r_mouseSensitivity;
+            float mouseY = Input.GetAxis("Mouse Y") * r_mouseSensitivity;
+
+            r_rotationY += mouseX;
+            r_rotationX += mouseY;
+
+            r_rotationX = Mathf.Clamp(r_rotationX, r_rotationXMinMax.x, r_rotationXMinMax.y);
+
+            Vector3 nextRotation = new Vector3(r_rotationX, r_rotationY);
+
+            r_currentRotation = Vector3.SmoothDamp(r_currentRotation, nextRotation, ref r_smoothVelocity, r_smoothTime);
+            transform.localEulerAngles = r_currentRotation;
+
+            transform.position = r_basicTarget.position - transform.forward * r_distanceFromTarget;
+
+            float scroll = -Input.GetAxis("Mouse ScrollWheel") * FOVspeed;
+
+            if (Camera.main.fieldOfView <= 40.0f && scroll < 0)
+                Camera.main.fieldOfView = 40.0f;
+            else if (Camera.main.fieldOfView >= 100.0f && scroll > 0)
+                Camera.main.fieldOfView = 100.0f;
+            else
+                Camera.main.fieldOfView += scroll;
         }
-    }*/
+    }
 }

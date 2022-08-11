@@ -22,7 +22,6 @@ public class LSJ_PlayerMove : MonoBehaviour
     private Rigidbody rbody;
     private Transform tr;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -79,7 +78,7 @@ public class LSJ_PlayerMove : MonoBehaviour
             {
                 isForwardMoving = false;
             }
-        }
+        }            
     }
 
     // 후진 순항 모드
