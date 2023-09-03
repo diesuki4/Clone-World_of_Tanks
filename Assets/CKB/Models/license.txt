@@ -1,0 +1,11 @@
+Model Information:
+* title:	KV-2
+* source:	https://sketchfab.com/3d-models/kv-2-9c9cfba63c774aed87fde80713cf7850
+* author:	beep3r (https://sketchfab.com/beep3r)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "KV-2" (https://sketchfab.com/3d-models/kv-2-9c9cfba63c774aed87fde80713cf7850) by beep3r (https://sketchfab.com/beep3r) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

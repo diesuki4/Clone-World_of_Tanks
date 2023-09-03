@@ -21,17 +21,10 @@ public class CKB_Explosion : MonoBehaviour
         {
             Rigidbody rb = hit.GetComponent<Rigidbody>();
 
-            if (!IsPlayer(hit.gameObject) && rb)
+            if (rb)
                 rb.AddExplosionForce(Force, explosionPos, Radius, 3.0f);
         }
     }
 
     void Update() { }
-
-    // 게임 오브젝트가 플레이어인지 확인
-    bool IsPlayer(GameObject go)
-    {
-        Debug.Log("[TODO] [CKB_Explosion.cs] 플레이어인지 확인");
-        return false;
-    }
 }

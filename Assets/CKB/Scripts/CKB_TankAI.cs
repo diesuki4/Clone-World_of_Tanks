@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class CKB_TankAI : MonoBehaviour
 {
@@ -8,27 +10,33 @@ public class CKB_TankAI : MonoBehaviour
 	public int PatrolDistance = 100;
 	public float StopDistance = 2;
 	public float FiringDurationMax = 5;
-	public float FiringDelay = 10;
-	public float FireDistance = 20;
+	public float FireDistance = 100;
 	public int FiringSpread = 500;
+	public float Damage = 80;
 	public GameObject Navigator;
-	public string TargetTag;
-	public string TargetLayer;
 
 	CKB_Tank ckbTank;
 	GameObject currentTarget;
 	CKB_Navigator ckbNavigator;
+	Transform mapCenter;
+	GameObject runSmoke;
 	float aiTime = 0;
 	int aiMoveState = 0;
-	float aiFireDelay = 0;
-	float aiFireTime = 0;
+	[HideInInspector]
+	public float aiFireTime = 0;
 
-	public float firePosYCorrection = 1;
-    public bool DebugMode = false;
+	public float firePosYCorrection = 0.3f;
+    public bool DebugMode = true;
+
+	float t;
+	Vector3 prevPos;
+	List<float> lstDeltaPosition;
 
 	void Awake()
 	{
 		ckbTank = GetComponent<CKB_Tank>();
+
+		runSmoke = transform.Find("RunSmoke").gameObject;
 	}
 
 	void Start()
@@ -42,6 +50,13 @@ public class CKB_TankAI : MonoBehaviour
         ckbNavigator.Owner = gameObject;
         // NavMeshAgent 의 속도 지정
         ckbNavigator.Navigator.speed = ckbTank.TankSpeed;
+
+		aiFireTime = FiringDurationMax;
+
+		mapCenter = GameObject.Find("CKB/MapCenter").transform;
+
+		lstDeltaPosition = new List<float>();
+		prevPos = transform.position;
 	}
 
 	Vector3 positionAround;
@@ -63,7 +78,8 @@ public class CKB_TankAI : MonoBehaviour
 			// AI의 랜덤 움직임을 초기화하는 상태
 			case 0:
 				// 현재 위치 기준 반경 PatrolDistance 이내의 지점을 랜덤하게 지정한다.
-				positionAround = DetectGround(transform.position + new Vector3(Random.Range(-PatrolDistance, PatrolDistance), 1000, Random.Range(-PatrolDistance, PatrolDistance)));
+				if (!NewDestination(out positionAround))
+					positionAround = DetectGround(transform.position + new Vector3(Random.Range(-PatrolDistance, PatrolDistance), 20, Random.Range(-PatrolDistance, PatrolDistance)));
 				// 상태를 움직이는 상태로 전환
 				aiMoveState = 1;
 				// PatrolDurationMax 미만의 시간(초)로 지정한 타겟으로 움직일 시간 지정
@@ -81,7 +97,12 @@ public class CKB_TankAI : MonoBehaviour
                     ckbNavigator.SetDestination(positionAround);
                     // 탱크는 네비게이터를 따라간다.
                     ckbTank.MoveTo(ckbNavigator);
+					runSmoke.SetActive(true);
                 }
+				else
+				{
+					runSmoke.SetActive(false);
+				}
 
 				// 탱크 상부와 포신이 positionAround 방향으로 서서히 회전한다.
 				ckbTank.Aim(positionAround);
@@ -120,7 +141,8 @@ public class CKB_TankAI : MonoBehaviour
 				// tank.Aim() 에서 포신이 타겟으로 서서히 회전할 때 목적지에 노이즈를 추가한다.
 				aimAround = (new Vector3(Random.Range(-FiringSpread, FiringSpread), Random.Range(0, FiringSpread) + targetDistance, Random.Range(-FiringSpread, FiringSpread))) * 0.001f;
 				// 현재 타겟의 위치 기준 반경 FireDistance 이내의 지점을 랜덤하게 지정한다.
-				positionAround = currentTarget.transform.position + new Vector3(Random.Range(-FireDistance, FireDistance), 0, Random.Range(-FireDistance, FireDistance));
+				if (!NewDestination(out positionAround))
+					positionAround = currentTarget.transform.position + new Vector3(Random.Range(-FireDistance, FireDistance), 0, Random.Range(-FireDistance, FireDistance));
 				// 초기화 상태 종료
 				aiMoveState = 1;
 				// 현재 타겟을 유지할 시간
@@ -138,40 +160,38 @@ public class CKB_TankAI : MonoBehaviour
 				ckbNavigator.SetDestination(positionAround);
 				// 탱크는 네비게이터를 따라간다.
 				ckbTank.MoveTo(ckbNavigator);
+				runSmoke.SetActive(true);
 
 				// 네비게이터의 위치가 탱크에서 1m 이상 떨어졌으면 위치를 동일하게 지정
 				if (Vector3.Distance(ckbNavigator.transform.position, transform.position) > 1)
 					ckbNavigator.transform.position = transform.position;
 			}
+			else
+			{
+				runSmoke.SetActive(false);
+			}
 
 			// 타겟의 위치에 노이즈를 더한 위치로 탱크 상부와 포신을 서서히 회전시킨다.
-			ckbTank.Aim(currentTarget.transform.position + Vector3.up * firePosYCorrection/* + aimAround*/);
+			ckbTank.Aim(currentTarget.transform, Vector3.up * firePosYCorrection/* + aimAround*/);
+
+			if (targetDistance <= FireDistance)
+				// 발사 가능 상태로 전환
+				canFire = true;
+			else
+				canFire = false;
 
 			// 발사 가능 상태이고 포신과 타겟의 가로, 세로 각도 차의 합이 5 미만일 때
 			if (canFire && ckbTank.AimingAngle < 5)
 			{
-				// 무기 교체 딜레이가 지났으면
-				if (aiFireDelay <= 0)
-				{
-					// 새로운 발사 시간과 딜레이를 적용
-					aiFireTime = Random.Range(0, FiringDurationMax);
-					aiFireDelay = Random.Range(0, FiringDelay);
-				}
-				// 무기 교체 딜레이가 안 지났을 때
-				else
-				{
-					aiFireDelay -= Time.deltaTime;
-				}
-				
-				// 발사 시간이 남았으면
-				if (aiFireTime > 0)
+				// 발사 시간이 지났으면
+				if (aiFireTime <= 0)
 				{
 					// 무기 발사 (내부적으로 텀이 존재해서 매 프레임 발사되지는 않는다.)
 					ckbTank.cannon.ShootBullet();
-					aiFireTime -= Time.deltaTime;
+					aiFireTime = FiringDurationMax;
 				}
 			}
-
+			
 			// 한 번의 텀이 끝났으면 새로운 타겟을 찾는다.
 			if (aiTime <= 0)
 			{
@@ -185,6 +205,38 @@ public class CKB_TankAI : MonoBehaviour
 			}
 		}
 
+		aiFireTime -= Time.deltaTime;
+
+		lstDeltaPosition.Add(Vector3.Distance(transform.position, prevPos));
+
+		prevPos = transform.position;
+
+		if (t < 2)
+		{
+			t += Time.deltaTime;
+		}
+		else
+		{
+			if (lstDeltaPosition.Sum() < 2)
+			{
+				Vector3 newDest;
+
+				if (Random.value < 0.5f && !NewDestination(out newDest))
+					newDest = DetectGround(transform.position + new Vector3(Random.Range(-PatrolDistance, PatrolDistance), 20, Random.Range(-PatrolDistance, PatrolDistance)));				
+				else
+					newDest = transform.position - transform.forward * 2 + Vector3.Scale(new Vector3(1, 0, 1), Random.insideUnitSphere);
+
+				ckbNavigator.SetDestination(newDest);
+			}
+
+			lstDeltaPosition.RemoveAt(0);
+		}
+
+		if (!currentTarget.activeSelf)
+			FindNewTarget();
+
+		ckbTank.Aim(currentTarget.transform, Vector3.up * firePosYCorrection);
+
         if (DebugMode)
             Debug.DrawLine(ckbTank.cannon.transform.position, ckbTank.cannon.transform.position + ckbTank.cannon.transform.forward * FireDistance,
 				gameObject.tag == "Enemy" ? Color.red : Color.green, Time.deltaTime);
@@ -196,8 +248,15 @@ public class CKB_TankAI : MonoBehaviour
 		// 현재 타겟 해제
 		currentTarget = null;
 
+		CKB_HPManager ckbHPManager = GetComponent<CKB_HPManager>();
+		if (Random.value < 0.5f && ckbHPManager)
+			if (ckbHPManager.LatestHit && ckbHPManager.LatestHit.activeSelf)
+				currentTarget = ckbHPManager.LatestHit;
+
+		// 상대의 태그
+		string opponentTag = CKB_TagObjectFinder.Instance.OpponentTag(gameObject.tag);
         // 해당 태그를 갖는 게임 오브젝트 배열
-        GameObject[] targets = CKB_TagObjectFinder.Instance.FindObjectWithTag(TargetTag);
+        GameObject[] targets = CKB_TagObjectFinder.Instance.FindObjectWithTag(opponentTag);
 
         if (targets != null)
         {
@@ -233,5 +292,25 @@ public class CKB_TankAI : MonoBehaviour
 			return hit.point;
 			
 		return position;
+	}
+
+	bool NewDestination(out Vector3 newPosition)
+	{
+		float fieldRadius = CKB_MGFieldDamageManager.Instance.fieldDistance;
+
+		NavMeshHit hitInfo;
+		bool isNewDestinationSet = false;
+
+		Vector3 point = mapCenter.position + Random.insideUnitSphere * fieldRadius;
+		point.y = mapCenter.position.y;
+
+		isNewDestinationSet = NavMesh.SamplePosition(point, out hitInfo, fieldRadius, 1);
+
+		if (isNewDestinationSet)
+			newPosition = hitInfo.position;
+		else
+			newPosition = Vector3.zero;
+
+		return isNewDestinationSet;
 	}
 }

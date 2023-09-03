@@ -15,6 +15,7 @@ public class CKB_TrackMover : MonoBehaviour
     }
     [Header("정방향/역방향")]
     public Direction directon = Direction.Normal;
+	public Transform wheels;
 
     [Header("속력")]
 	public float speed = 1;
@@ -38,12 +39,16 @@ public class CKB_TrackMover : MonoBehaviour
 
 		Vector2 moveVector = Vector2.zero;
 
-		if(UVDirection.x != 0)
+		if (UVDirection.x != 0)
 			moveVector.x = vector.x * UVDirection.x;
 			
-		if(UVDirection.y != 0)
+		if (UVDirection.y != 0)
 			moveVector.y = vector.x * UVDirection.y;
 			
 		mat.mainTextureOffset += moveVector * speed * Time.deltaTime;
+
+		if (wheels)
+			foreach (Transform child in wheels)
+				child.Rotate(Vector3.left * moveVector.x * speed * 5);
 	}
 }

@@ -1,0 +1,33 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+
+public class LSJ_UtilitySimpleRename : MonoBehaviour
+{
+
+    [SerializeField] string Base_Name = "Tank";
+
+
+    [ContextMenu("Rename")]
+
+
+    void Rename()
+    {
+
+        var childTransforms = GetComponentsInChildren<Transform>();
+        for (int i = 0; i < childTransforms.Length; i++)
+        {
+            if (childTransforms[i] == this.transform)
+            {
+                continue;
+            }
+
+            childTransforms[i].name = Base_Name + " (" + i + ")";
+        }
+
+    }
+
+
+}
+

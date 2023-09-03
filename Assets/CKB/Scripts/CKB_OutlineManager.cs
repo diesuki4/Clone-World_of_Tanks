@@ -9,10 +9,14 @@ public class CKB_OutlineManager : MonoBehaviour
     public float radius;
     public float deltaRadius;
     public float deltaAngle;
-    public LayerMask detectLayers;
     public GameObject[] arrAI;
 
-    void Start() { }
+    Vector3 crossHairPos2D;
+
+    void Start()
+    {
+        crossHairPos2D = new Vector3(Screen.width / 2, Screen.height / 2 + 108);
+    }
 
     void Update()
     {
@@ -26,13 +30,13 @@ public class CKB_OutlineManager : MonoBehaviour
             while (currentAngle < 360)
             {
                 Vector3 deltaVec = Quaternion.Euler(0, 0, currentAngle) * Vector3.right;
-                Vector3 newCameraPos = Camera.main.transform.position + Camera.main.transform.TransformDirection(deltaVec) * currentRadius;
+                Vector3 newCameraPos = crossHairPos2D + deltaVec * currentRadius;
                 
-                Ray ray = new Ray(newCameraPos, Camera.main.transform.forward);
+                Ray ray = Camera.main.ScreenPointToRay(newCameraPos);
                 rays.Add(ray);
 
                 if (debugMode)
-                    Debug.DrawLine(newCameraPos, newCameraPos + ray.direction * 500, Color.red, Time.deltaTime);
+                    Debug.DrawLine(ray.origin, ray.origin + ray.direction * 500, Color.red, Time.deltaTime);
 
                 currentAngle += deltaAngle;
 
@@ -49,7 +53,7 @@ public class CKB_OutlineManager : MonoBehaviour
         {
             RaycastHit hitInfo;
             
-            if (Physics.Raycast(ray, out hitInfo, float.MaxValue, detectLayers))
+            if (Physics.Raycast(ray, out hitInfo))
             {
                 GameObject hitObj = hitInfo.transform.gameObject;
                 Outline outline = null;

@@ -9,7 +9,7 @@ public class CKB_Projectile : MonoBehaviour
     [HideInInspector]
     public string TargetTag;
     [HideInInspector]
-    public string TargetLayer;
+    public int TargetLayer;
     [Header("발사체 타격 효과")]
     public GameObject Effect;
 
@@ -98,7 +98,7 @@ public class CKB_Projectile : MonoBehaviour
         }
 
         // 현재 위치에서 DamageRadius 내에 있는 모든 Collider
-        Collider[] dmhitColliders = Physics.OverlapSphere(position, DamageRadius, 1 << LayerMask.NameToLayer(TargetLayer));
+        Collider[] dmhitColliders = Physics.OverlapSphere(position, DamageRadius, 1 << TargetLayer);
 
         for (int i = 0; i < dmhitColliders.Length; ++i)
         {
@@ -160,7 +160,7 @@ public class CKB_Projectile : MonoBehaviour
 
 	Transform GetTankTransform(Transform tr)
 	{
-        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+        if (tr.GetComponent<CKB_HPManager>() || tr == tr.root)
             return tr;
 
 		return GetTankTransform(tr.parent);

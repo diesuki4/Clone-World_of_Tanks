@@ -11,21 +11,23 @@ public class CKB_TagObjectFinder : MonoBehaviour
 {
     public static CKB_TagObjectFinder Instance;
 
+    // <태그 : 오브젝트 목록>을 딕셔너리로 관리한다.
+    Dictionary<string, GameObject[]> TargetList;
+
+    string[] tankTags = {"Player", "Enemy"};
+    string[] tankLayers = {"Ally", "Enemy"};
+
     void Awake()
     {
         if (Instance == null)
             Instance = this;
-    }
 
-    // <태그 : 오브젝트 목록>을 딕셔너리로 관리한다.
-    Dictionary<string, GameObject[]> TargetList;
-    List<bool> IsActive;
-
-    void Start()
-    {
         TargetList = new Dictionary<string, GameObject[]>();
-        IsActive = new List<bool>();
     }
+
+    void Start() { }
+
+    void Update() { }
 
     // 딕셔너리에서 태그에 해당하는 오브젝트 목록을 검색한다.
     public GameObject[] FindObjectWithTag(string tag)
@@ -37,56 +39,39 @@ public class CKB_TagObjectFinder : MonoBehaviour
 
             // 목록을 가져와서
             if (TargetList.TryGetValue(tag, out objsWithTag))
-            {
-                int idx = Array.IndexOf(TargetList.Keys.ToArray(), tag);
-
-                // 활성화 상태로 바꾸고
-                IsActive[idx] = true;
                 // 반환한다.
                 return objsWithTag;
-            }
             // 목록이 존재하지 않으면
             else
-            {
                 // null 반환.
                 return null;
-            }
         }
         // 태그가 없으면
         else
         {
-            GameObject[] objsWithTag = GameObject.FindGameObjectsWithTag(tag);
-
             // 딕셔너리에 목록을 추가하고
-            TargetList.Add(tag, objsWithTag);
-            // 상태도 추가한다.
-            IsActive.Add(false);
+            UpdateTargetList(tag);
 
             // 반환한다.
-            return objsWithTag;
+            return TargetList[tag];
         }
     }
 
-    // 매 프레임 마다
-    void Update()
+    public void UpdateTargetList(string tag)
     {
-        int length = TargetList.Count;
+        TargetList[tag] = GameObject.FindGameObjectsWithTag(tag);
+    }
 
-        // 딕셔너리의 모든 목록 중에
-        for (int i = 0; i < length; ++i)
-        {
-            if (TargetList.ElementAt(i).Value != null)
-            {
-                // 목록이 활성화 상태이면
-                if (IsActive[i])
-                {
-                    string key = TargetList.ElementAt(i).Key;
-                    // 목록을 갱신하고
-                    TargetList[key] = GameObject.FindGameObjectsWithTag(key);
-                    // 비활성화 상태로 바꾼다.
-                    IsActive[i] = false;
-                }
-            }
-        }
+    public string OpponentTag(string tag)
+    {
+        return (tag == tankTags[0]) ? (tankTags[1]) : (tag == tankTags[1]) ? (tankTags[0]) : "Untagged";
+    }
+
+    public int OpponentLayer(int layer)
+    {
+        int allyLayer = LayerMask.NameToLayer(tankLayers[0]);
+        int enemyLayer = LayerMask.NameToLayer(tankLayers[1]);
+
+        return (layer == allyLayer) ? (enemyLayer) : (layer == enemyLayer) ? (allyLayer) : LayerMask.NameToLayer("Default");
     }
 }

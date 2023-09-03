@@ -6,9 +6,7 @@ public class CKB_Cannon : MonoBehaviour
 {
     [HideInInspector]
     public GameObject Owner;
-    [Header("발사체")]
     public GameObject Projectile;
-    [Header("총알")]
     public GameObject Bullet;
     public float FireRate = 0.1f;
     public float Spread = 1;
@@ -17,11 +15,9 @@ public class CKB_Cannon : MonoBehaviour
     public int AmmoMax = 10;
     public float ReloadTime = 1;
 
-    [Header("Muzzle 이펙트")]
     public GameObject Muzzle;
     public float MuzzleLifeTime = 2;
 
-    [Header("사운드 효과")]
     public AudioClip SoundGun;
 
     [HideInInspector]
@@ -29,18 +25,17 @@ public class CKB_Cannon : MonoBehaviour
     float reloadTimeTemp;
     AudioSource audioSource;
     bool Reloading;
-    string TargetTag;
-    string TargetLayer;
+    float Damage;
 
     void Start()
     {
         Transform tankTr = GetTankTransform(transform);
         
         Owner = tankTr.gameObject;
-        TargetTag = tankTr.GetComponent<CKB_TankAI>().TargetTag;
-        TargetLayer = tankTr.GetComponent<CKB_TankAI>().TargetLayer;
 
         audioSource = GetComponent<AudioSource>();
+
+        Damage = Owner.GetComponent<CKB_TankAI>().Damage;
     }
 
     void Update()
@@ -105,9 +100,9 @@ public class CKB_Cannon : MonoBehaviour
                 // 쏜 탱크는 나다.
                 ckbProjectile.Owner = Owner;
                 // 적의 태그
-                ckbProjectile.TargetTag = TargetTag;
+                ckbProjectile.TargetTag = CKB_TagObjectFinder.Instance.OpponentTag(Owner.tag);
                 // 적의 레이어
-                ckbProjectile.TargetLayer = TargetLayer;
+                ckbProjectile.TargetLayer = CKB_TagObjectFinder.Instance.OpponentLayer(Owner.layer);
                 // 자신과는 충돌하지 않는다.
                 ckbProjectile.IgnoreSelf();
 
@@ -132,10 +127,10 @@ public class CKB_Cannon : MonoBehaviour
     public void ShootBullet()
     {
         // 총알이 있으면
-        if (Ammo > 0)
+        //if (Ammo > 0)
         {
             // FireRate 마다 총알을 발사한다. (재장전 시간과는 별개)
-            if (Time.time > nextFireTime + FireRate)
+            //if (Time.time > nextFireTime + FireRate)
             {
                 --Ammo;
                 nextFireTime = Time.time;
@@ -161,12 +156,10 @@ public class CKB_Cannon : MonoBehaviour
                 CKB_Bullet ckbBullet = bullet.GetComponent<CKB_Bullet>();
 
                 // 쏜 탱크는 나다.
-                ckbBullet.Owner = Owner;
-                // 적의 태그
-                ckbBullet.TargetTag = TargetTag;
+                ckbBullet.Initialize(Owner, Damage);
 
                 // 사운드 효과 재생
-                //audioSource.PlayOneShot(SoundGun);
+                audioSource.PlayOneShot(SoundGun);
 
                 nextFireTime += FireRate;
             }
@@ -175,7 +168,7 @@ public class CKB_Cannon : MonoBehaviour
 
 	Transform GetTankTransform(Transform tr)
 	{
-        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+        if (tr.GetComponent<CKB_HPManager>() || tr == tr.root)
             return tr;
 
 		return GetTankTransform(tr.parent);

@@ -14,8 +14,8 @@ public class CKB_Tank : MonoBehaviour
 	public Vector3 MainGunBaseAxis = new Vector3(1, 0, 0);
 
 	public float TurretSpeed = 20;
-	public float TankSpeed = 5;
-	public float TurnSpeed = 20;
+	public float TankSpeed = 6;
+	public float TurnSpeed = 50;
 
 	public float MaingunMinTurnX = -10;
 	public float MaingunMaxTurnX = 45;
@@ -33,7 +33,7 @@ public class CKB_Tank : MonoBehaviour
 	[HideInInspector]
 	public float AimingAngle;
 	[HideInInspector]
-	public float killScore;
+	public int killScore;
 
 	void Awake()
 	{
@@ -54,10 +54,7 @@ public class CKB_Tank : MonoBehaviour
 		killScore = 0;
     }
 
-    void Update()
-    {
-
-    }
+    void Update() { }
 
 	// 이동 (한 프레임)
 	public void Move(Vector2 moveVector)
@@ -120,7 +117,7 @@ public class CKB_Tank : MonoBehaviour
 
 		// 탱크 상부
         // target 의 위치를 탱크 기준 로컬 위치로 변환
-        Vector3 localTarget = GetTankTransform(Turret.transform).InverseTransformPoint(target);
+        Vector3 localTarget = Turret.transform.InverseTransformPoint(target);
         // localTarget 을 보고 있을 때의 각도
         Quaternion targetlook = Quaternion.LookRotation(localTarget - Turret.transform.localPosition);
         // targetlook 에 현재 각도에서 target 의 Y축 각도를 적용한 것을 대입한다.
@@ -136,7 +133,7 @@ public class CKB_Tank : MonoBehaviour
 		if (aimAngleTurret < 3)
 		{
 			// target 의 위치를 탱크 상부 기준 로컬 위치로 변환
-			localTarget = Turret.transform.InverseTransformPoint(target);
+			localTarget = MainGun.transform.InverseTransformPoint(target);
 			// 포신과 타겟과의 거리
 			float distance = Vector2.Distance(new Vector2(localTarget.x, localTarget.z), new Vector2(MainGun.transform.localPosition.x, MainGun.transform.localPosition.z));
 			// 포신과 타겟의 수직(세로) 각도 차이
@@ -160,6 +157,20 @@ public class CKB_Tank : MonoBehaviour
 		AimingAngle = aimAngleTurret + aimAngleMaingun;
 	}
 
+	public void Aim(Transform target, Vector3 offset)
+	{
+		Vector3 destination = target.position + offset;
+
+		Quaternion targetLook = Quaternion.LookRotation(Vector3.ProjectOnPlane((destination - Turret.transform.position).normalized, Vector3.up));
+
+        targetLook.eulerAngles = TurretBaseAxis * targetLook.eulerAngles.y + Vector3.Scale(Vector3.one - TurretBaseAxis, turrentEulerAngle);
+
+        //Turret.transform.localRotation = Quaternion.Lerp(Turret.transform.localRotation, targetLook, TurretSpeed * Time.deltaTime * 0.1f);
+		Turret.transform.rotation = Quaternion.Lerp(Turret.transform.rotation, targetLook, TurretSpeed * Time.deltaTime * 0.1f);
+
+		AimingAngle = Quaternion.Angle(Turret.transform.rotation, targetLook);
+	}
+
 	// aimVector 에 따라 서서히 회전
 	public void Aim(Vector2 aimVector)
 	{
@@ -180,7 +191,7 @@ public class CKB_Tank : MonoBehaviour
 
 	Transform GetTankTransform(Transform tr)
 	{
-        if (tr.GetComponent<CKB_Tank>() || tr == tr.root)
+        if (tr.GetComponent<CKB_HPManager>() || tr == tr.root)
             return tr;
 
 		return GetTankTransform(tr.parent);

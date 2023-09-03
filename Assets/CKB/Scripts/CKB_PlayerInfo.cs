@@ -22,9 +22,9 @@ public class CKB_PlayerInfo : MonoBehaviour
 
     void Update()
     {
-        if (!target)
+        if (!target.gameObject.activeSelf)
         {
-            hpSlider.gameObject.SetActive(false);
+            gameObject.SetActive(false);
             return;
         }
 
